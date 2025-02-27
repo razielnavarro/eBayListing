@@ -9,11 +9,12 @@ listingInfo.post("/", async (c) => {
   if (!url) {
     return c.json({ error: "URL is required" }, 400);
   }
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   const basePage = new BasePage(browser, page);
 
   await basePage.visit(url);
+  await basePage.selectCountry();
 
   const title = await basePage.getTitle();
   const price = await basePage.getPrice();
@@ -22,5 +23,4 @@ listingInfo.post("/", async (c) => {
   await browser.close();
 
   return c.json({ title, price, shipping });
-  
 });
