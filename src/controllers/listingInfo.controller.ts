@@ -20,8 +20,9 @@ listingInfo.post("/", async (c) => {
   const title = await basePage.getTitle();
   const price = await basePage.getPrice();
   const shipping = await basePage.getShipping();
+  const characteristics = await basePage.getCharacteristics();
 
   await browser.close();
 
-  return c.json({ title, price, shipping });
+  return c.json({ title, price, shipping, characteristics });
 });

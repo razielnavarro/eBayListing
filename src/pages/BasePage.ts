@@ -147,4 +147,20 @@ export default class BasePage {
     }
   }
 
+  // Get listing's
+  // details
+  async getCharacteristics() {
+    const rows = await this.page.$$(".ux-layout-section-evo__col");
+    const characteristics = [];
+    for (const row of rows) {
+      try{
+        const label = await row.$eval(".ux-labels-values__labels-content", el => el.textContent?.trim());
+        const value = await row.$eval(".ux-labels-values__values-content", el => el.textContent?.trim());
+        characteristics.push({ label, value });
+      } catch (error) {
+        console.log(`Could not get details: ${error}`);
+      }
+    }
+    return characteristics;
+  }
 }
