@@ -58,12 +58,13 @@ export default class BasePage {
   // costs
   async getShipping() {
     let shippingCost: string;
-    // Envio con costo
+    // shipping with $ Amount
     try {
       shippingCost = await this.page.$eval(
         "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span:nth-child(1)",
         (el) => el.innerHTML
       );
+      // if shipping shows in a different currency, show amount in USD
       if (!shippingCost.includes("$")) {
         shippingCost =
           (await this.page.$eval(
@@ -71,6 +72,7 @@ export default class BasePage {
             (el) => el.innerHTML)
       )}
     } catch (error) {
+      // shipping with Free Shipping
       try {
         shippingCost = await this.page.$eval(
           "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div.ux-labels-values__values.col-9 > div > div > span.ux-textspans.ux-textspans--BOLD",
