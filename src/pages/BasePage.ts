@@ -32,17 +32,25 @@ export default class BasePage {
   // Get the listing's
   // price
   async getPrice() {
+    let price: string;
     try {
       await this.page.waitForSelector(
         "#mainContent > div.vim.d-vi-evo-region > div.vim.x-price-section.mar-t-20 > div > div > div.x-price-primary > span"
       );
-      return await this.page.$eval(
+      price = await this.page.$eval(
         "#mainContent > div.vim.d-vi-evo-region > div.vim.x-price-section.mar-t-20 > div > div > div.x-price-primary > span",
         (el) => el.innerHTML
       );
+      if (!price.includes('$')) {
+        price = await this.page.$eval(
+          '.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD',
+          el => el.textContent?.trim()
+        ) || "nknk";
+      }
     } catch (error) {
       throw new Error(`Could not get price: ${error}`);
     }
+    return price;
   }
 
   // Get shipping
