@@ -14,6 +14,7 @@ listingInfo.post("/", async (c) => {
   const basePage = new BasePage(browser, page);
 
   await basePage.visit(url);
+  await basePage.selectLanguage();
   await basePage.selectCountry();
 
   const title = await basePage.getTitle();

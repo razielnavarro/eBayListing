@@ -13,6 +13,8 @@ export default class BasePage {
     await this.page.goto(url);
   }
 
+  // Get listing's
+  // item title
   async getTitle() {
     try {
       await this.page.waitForSelector(
@@ -27,6 +29,8 @@ export default class BasePage {
     }
   }
 
+  // Get the listing's
+  // price
   async getPrice() {
     try {
       await this.page.waitForSelector(
@@ -41,14 +45,16 @@ export default class BasePage {
     }
   }
 
+  // Get shipping
+  // costs
   async getShipping() {
     const normalShippingSelector =
       "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span:nth-child(1)";
     const alternativeShippingSelector =
       "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div.ux-labels-values__values.col-9 > div > div > span.ux-textspans.ux-textspans--BOLD";
     try {
-		await this.page.content();
-		return await this.page.$eval(
+      await this.page.content();
+      return await this.page.$eval(
         normalShippingSelector,
         (el) => el.innerHTML
       );
@@ -64,6 +70,9 @@ export default class BasePage {
     }
   }
 
+  // Choose USA as the
+  // country and enter the
+  // ZIP code 33172
   async selectCountry() {
     // Enviar a
     await this.page.waitForSelector(
@@ -86,16 +95,56 @@ export default class BasePage {
     await this.page.type("#shZipCode", "33172");
 
     // Submit button
-    await this.page.waitForSelector(".x-shipping-calculator__getRates button[type='submit'].btn--primary");
-    await this.page.click(".x-shipping-calculator__getRates button[type='submit'].btn--primary");
-	await this.page.waitForResponse((response) => response.url().includes('GET_RATES_MODAL') && response.status() === 200, { timeout: 15000 })	// Wait for changes to load
+    await this.page.waitForSelector(
+      ".x-shipping-calculator__getRates button[type='submit'].btn--primary"
+    );
+    await this.page.click(
+      ".x-shipping-calculator__getRates button[type='submit'].btn--primary"
+    );
+    await this.page.waitForResponse(
+      (response) =>
+        response.url().includes("GET_RATES_MODAL") && response.status() === 200,
+      { timeout: 15000 }
+    ); // Wait for changes to load
 
-	// Close the modal
-	await this.page.waitForSelector('body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button');
-	await this.page.click('body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button');
+    // Close the modal
+    await this.page.waitForSelector(
+      "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
+    );
+    await this.page.click(
+      "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
+    );
 
-	// Wait for the page to fully load
-	await this.page.waitForSelector('body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river', { hidden: true });
-	await this.page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 })
+    // Wait for the page to fully load
+    await this.page.waitForSelector(
+      "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river",
+      { hidden: true }
+    );
+    await this.page.waitForNavigation({
+      waitUntil: "networkidle2",
+      timeout: 15000,
+    });
+    await this.page.content();
   }
+
+  // Select spanish as the
+  // default language
+  async selectLanguage() {
+    const currentLanguage = await this.page.$eval(
+      ".gh-language-toggle__menu-text",
+      (el) => el.getAttribute("data-lang")
+    );
+    if (currentLanguage !== "es-CO") {
+      // Wait for the Spanish language option to appear
+      await this.page.waitForSelector(
+        'span.gh-language-toggle__list-text[data-lang="es-CO"]'
+      );
+
+      // Click the Spanish option
+      await this.page.click(
+        'span.gh-language-toggle__list-text[data-lang="es-CO"]'
+      );
+    }
+  }
+
 }
