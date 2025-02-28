@@ -41,11 +41,12 @@ export default class BasePage {
         "#mainContent > div.vim.d-vi-evo-region > div.vim.x-price-section.mar-t-20 > div > div > div.x-price-primary > span",
         (el) => el.innerHTML
       );
-      if (!price.includes('$')) {
-        price = await this.page.$eval(
-          '.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD',
-          el => el.textContent?.trim()
-        ) || "nknk";
+      if (!price.includes("$")) {
+        price =
+          (await this.page.$eval(
+            ".ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD",
+            (el) => el.textContent?.trim()
+          )) || "";
       }
     } catch (error) {
       throw new Error(`Could not get price: ${error}`);
@@ -56,26 +57,30 @@ export default class BasePage {
   // Get shipping
   // costs
   async getShipping() {
-    const normalShippingSelector =
-      "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span:nth-child(1)";
-    const alternativeShippingSelector =
-      "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div.ux-labels-values__values.col-9 > div > div > span.ux-textspans.ux-textspans--BOLD";
+    let shippingCost: string;
+    // Envio con costo
     try {
-      await this.page.content();
-      return await this.page.$eval(
-        normalShippingSelector,
+      shippingCost = await this.page.$eval(
+        "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span:nth-child(1)",
         (el) => el.innerHTML
       );
+      if (!shippingCost.includes("$")) {
+        shippingCost =
+          (await this.page.$eval(
+            "#mainContent > div > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD",
+            (el) => el.innerHTML)
+      )}
     } catch (error) {
       try {
-        return await this.page.$eval(
-          alternativeShippingSelector,
+        shippingCost = await this.page.$eval(
+          "#mainContent > div.vim.d-vi-evo-region > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div.ux-labels-values__values.col-9 > div > div > span.ux-textspans.ux-textspans--BOLD",
           (el) => el.innerHTML
         );
       } catch (error) {
         throw new Error(`Could not get price: ${error}`);
       }
     }
+    return shippingCost;
   }
 
   // Choose USA as the
