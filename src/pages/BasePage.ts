@@ -89,10 +89,14 @@ export default class BasePage {
     await this.page.select("#shCountry", "1");
 
     // Select ZIP code
-    await this.page.waitForSelector("#shZipCode");
-    await this.page.click("#shZipCode", { clickCount: 3 });
-    await this.page.keyboard.press("Backspace");
-    await this.page.type("#shZipCode", "33172");
+    const zipInput = await this.page.$("#shZipCode");
+    if (zipInput) {
+      await this.page.click("#shZipCode", { clickCount: 3 });
+      await this.page.keyboard.press("Backspace");
+      await this.page.type("#shZipCode", "33172");
+    } else {
+      console.log("Could not find ZIP code input");
+    }
 
     // Submit button
     await this.page.waitForSelector(
@@ -153,9 +157,15 @@ export default class BasePage {
     const rows = await this.page.$$(".ux-layout-section-evo__col");
     const characteristics = [];
     for (const row of rows) {
-      try{
-        const label = await row.$eval(".ux-labels-values__labels-content", el => el.textContent?.trim());
-        const value = await row.$eval(".ux-labels-values__values-content", el => el.textContent?.trim());
+      try {
+        const label = await row.$eval(
+          ".ux-labels-values__labels-content",
+          (el) => el.textContent?.trim()
+        );
+        const value = await row.$eval(
+          ".ux-labels-values__values-content",
+          (el) => el.textContent?.trim()
+        );
         characteristics.push({ label, value });
       } catch (error) {
         console.log(`Could not get details: ${error}`);
@@ -164,14 +174,16 @@ export default class BasePage {
     return characteristics;
   }
 
-    // Get listing's
+  // Get listing's
   // images
   async getImages() {
-    const images = await this.page.$$(".ux-image-carousel-item.image-treatment.image");
+    const images = await this.page.$$(
+      ".ux-image-carousel-item.image-treatment.image"
+    );
     const imageUrls = [];
     for (const image of images) {
-      try{
-        const url = await image.$eval("img", el => el.getAttribute("src"));
+      try {
+        const url = await image.$eval("img", (el) => el.getAttribute("src"));
         imageUrls.push(url);
       } catch (error) {
         console.log(`Could not get image: ${error}`);
