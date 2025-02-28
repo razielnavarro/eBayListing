@@ -163,4 +163,20 @@ export default class BasePage {
     }
     return characteristics;
   }
+
+    // Get listing's
+  // images
+  async getImages() {
+    const images = await this.page.$$(".ux-image-carousel-item.image-treatment.image");
+    const imageUrls = [];
+    for (const image of images) {
+      try{
+        const url = await image.$eval("img", el => el.getAttribute("src"));
+        imageUrls.push(url);
+      } catch (error) {
+        console.log(`Could not get image: ${error}`);
+      }
+    }
+    return imageUrls;
+  }
 }
