@@ -1,3 +1,4 @@
+import { error } from "console";
 import * as puppeteer from "puppeteer";
 
 export default class BasePage {
@@ -66,11 +67,11 @@ export default class BasePage {
       );
       // if shipping shows in a different currency, show amount in USD
       if (!shippingCost.includes("$")) {
-        shippingCost =
-          (await this.page.$eval(
-            "#mainContent > div > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD",
-            (el) => el.innerHTML)
-      )}
+        shippingCost = await this.page.$eval(
+          "#mainContent > div > div.vim.d-shipping-minview.mar-t-20 > div > div > div > div:nth-child(1) > div > div > div > div.ux-labels-values__values.col-9 > div > div:nth-child(1) > span.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD",
+          (el) => el.innerHTML
+        );
+      }
     } catch (error) {
       // shipping with Free Shipping
       try {
@@ -109,8 +110,6 @@ export default class BasePage {
       await this.page.click("#shZipCode", { clickCount: 3 });
       await this.page.keyboard.press("Backspace");
       await this.page.type("#shZipCode", "33172");
-    } else {
-      console.log("Could not find ZIP code input");
     }
 
     // Submit button
@@ -191,19 +190,63 @@ export default class BasePage {
 
   // Get listing's
   // images
-  async getImages() {
-    const images = await this.page.$$(
-      ".ux-image-carousel-item.image-treatment.image"
-    );
-    const imageUrls = [];
-    for (const image of images) {
-      try {
-        const url = await image.$eval("img", (el) => el.getAttribute("src"));
-        imageUrls.push(url);
-      } catch (error) {
-        console.log(`Could not get image: ${error}`);
-      }
-    }
-    return imageUrls;
+  // async getImages() {
+  //   const imageUrls = new Set();
+  //   const maxIterations = 20;
+  //   let iteration = 0;
+
+  //   let currentImg = await this.page.$(
+  //     ".ux-image-carousel-item.image-treatment.active.image"
+  //   );
+
+  //   if (!currentImg) {
+  //     throw new Error("Could not find image");
+  //   }
+  //   let currentSrc = await this.page.evaluate(
+  //     (el) => el.getAttribute(""),
+  //     currentImg
+  //   );
+  //   imageUrls.add(currentSrc);
+
+  //   const nextArrowSelector = ".btn-next.icon-btn";
+
+  //   while (iteration < maxIterations) {
+  //     const nextArrow = await this.page.$(nextArrowSelector);
+  //     if (!nextArrow) {
+  //       console.log("Next arrow not found");
+  //       break;
+  //     }
+  //     await nextArrow.click();
+  //     await this.page.waitForResponse(
+  //       (response) =>
+  //         response.url().includes("images/g") && response.status() === 200,
+  //       { timeout: 15000 }
+  //     );
+
+  //     await this.page.waitForFunction(
+  //       (prevSrc, selector) => {
+  //         const img = document.querySelector(selector);
+  //         return img && img.getAttribute("") !== prevSrc;
+  //       },
+  //       {},
+  //       currentSrc,
+  //       ".ux-image-carousel-item.image-treatment.active.image"
+  //     );
+
+  //     currentImg = await this.page.$(
+  //       ".ux-image-carousel-item.image-treatment.active.image"
+  //     );
+  //     currentSrc = await this.page.evaluate(
+  //       (el) => el.getAttribute(""),
+  //       currentImg!
+  //     );
+
+  //     if (imageUrls.has(currentSrc)) {
+  //       break;
+  //     }
+  //     imageUrls.add(currentSrc);
+  //     iteration++;
+  //   }
+
+  //   return Array.from(imageUrls);
   }
-}
