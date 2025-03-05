@@ -140,7 +140,7 @@ export default class BasePage {
       { hidden: true }
     );
     await this.page.waitForNavigation({
-      waitUntil: "networkidle2",
+      waitUntil: 'networkidle0',
       timeout: 15000,
     });
     await this.page.content();
