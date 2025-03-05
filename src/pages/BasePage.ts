@@ -57,6 +57,15 @@ export default class BasePage {
 
   // Get shipping
   // costs
+
+  // Helper function to parse the shipping cost string
+private parseShippingCost(shippingCost: string): string {
+  // This regex finds a dollar sign followed by the number with optional decimals.
+  const regex = /\$\s*\d+(?:[.,]\d+)?/;
+  const match = shippingCost.match(regex);
+  return match ? match[0].replace(/\s+/g, '') : shippingCost;
+}
+  
   async getShipping(): Promise<string> {
     try {
       let shippingCost = await this.page.$eval(
@@ -70,7 +79,8 @@ export default class BasePage {
           (el) => el.innerHTML
         );
       }
-      return shippingCost;
+      const parsedShippingCost = this.parseShippingCost(shippingCost);
+      return parsedShippingCost;
     } catch (error) {
       throw new Error(`Could not get shipping cost: ${error}`);
     }
