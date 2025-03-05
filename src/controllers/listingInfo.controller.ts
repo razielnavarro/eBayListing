@@ -18,10 +18,11 @@ listingInfo.post("/", async (c) => {
   await basePage.selectCountry();
 
   const title = await basePage.getTitle();
+  
+  const images = await basePage.getImages();
   const price = await basePage.getPrice();
   const shipping = await basePage.getShipping();
   const characteristics = await basePage.getCharacteristics();
-  const images = await basePage.getImages();
 
   await browser.close();
 

@@ -190,63 +190,19 @@ export default class BasePage {
 
   // Get listing's
   // images
-  // async getImages() {
-  //   const imageUrls = new Set();
-  //   const maxIterations = 20;
-  //   let iteration = 0;
+  async getImages() {
+    const mainImage = await this.page.$eval(
+      ".ux-image-carousel-item.image-treatment.active img",
+      (img) => img.getAttribute("src")
+    );
+    let imageUrls = await this.page.$$eval(
+      ".ux-image-carousel-item.image-treatment img",
+      (imgs: HTMLImageElement[]) =>
+        imgs.map((img) => img.getAttribute("data-zoom-src") || "")
+    );
 
-  //   let currentImg = await this.page.$(
-  //     ".ux-image-carousel-item.image-treatment.active.image"
-  //   );
+    imageUrls = Array.from(new Set(imageUrls));
 
-  //   if (!currentImg) {
-  //     throw new Error("Could not find image");
-  //   }
-  //   let currentSrc = await this.page.evaluate(
-  //     (el) => el.getAttribute(""),
-  //     currentImg
-  //   );
-  //   imageUrls.add(currentSrc);
-
-  //   const nextArrowSelector = ".btn-next.icon-btn";
-
-  //   while (iteration < maxIterations) {
-  //     const nextArrow = await this.page.$(nextArrowSelector);
-  //     if (!nextArrow) {
-  //       console.log("Next arrow not found");
-  //       break;
-  //     }
-  //     await nextArrow.click();
-  //     await this.page.waitForResponse(
-  //       (response) =>
-  //         response.url().includes("images/g") && response.status() === 200,
-  //       { timeout: 15000 }
-  //     );
-
-  //     await this.page.waitForFunction(
-  //       (prevSrc, selector) => {
-  //         const img = document.querySelector(selector);
-  //         return img && img.getAttribute("") !== prevSrc;
-  //       },
-  //       {},
-  //       currentSrc,
-  //       ".ux-image-carousel-item.image-treatment.active.image"
-  //     );
-
-  //     currentImg = await this.page.$(
-  //       ".ux-image-carousel-item.image-treatment.active.image"
-  //     );
-  //     currentSrc = await this.page.evaluate(
-  //       (el) => el.getAttribute(""),
-  //       currentImg!
-  //     );
-
-  //     if (imageUrls.has(currentSrc)) {
-  //       break;
-  //     }
-  //     imageUrls.add(currentSrc);
-  //     iteration++;
-  //   }
-
-  //   return Array.from(imageUrls);
+    return { mainImage, imageUrls };
   }
+}
