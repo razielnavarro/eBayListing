@@ -1,5 +1,9 @@
 import { error } from "console";
 import * as puppeteer from "puppeteer";
+import type {
+  Characteristic,
+  StructuredCharacteristics,
+} from "../common/types";
 
 export default class BasePage {
   private browser: puppeteer.Browser;
@@ -82,7 +86,9 @@ export default class BasePage {
         );
       }
       const parsedShippingCost = this.parseDollarValue(shippingCost);
-      const numericShipping = parseFloat(parsedShippingCost.replace(/[^\d.]/g, ""));
+      const numericShipping = parseFloat(
+        parsedShippingCost.replace(/[^\d.]/g, "")
+      );
       return numericShipping;
     } catch (error) {
       throw new Error(`Could not get shipping cost: ${error}`);
@@ -163,9 +169,10 @@ export default class BasePage {
 
   // Get listing's
   // details
-  async getCharacteristics() {
+
+  async getCharacteristics(): Promise<StructuredCharacteristics> {
     const rows = await this.page.$$(".ux-layout-section-evo__col");
-    const characteristics = [];
+    const characteristics: Characteristic[] = [];
     for (const row of rows) {
       const labelEl = await row.$(".ux-labels-values__labels-content");
       const valueEl = await row.$(".ux-labels-values__values-content");
@@ -178,10 +185,33 @@ export default class BasePage {
           ".ux-labels-values__values-content",
           (el) => el.textContent?.trim()
         );
-        characteristics.push({ label, value });
+        // Only push if both label and value are non-empty.
+        if (label && value) {
+          characteristics.push({ label, value });
+        }
       }
     }
-    return characteristics;
+
+    // Define a mapping for known characteristics
+    const knownLabels: { [key: string]: string } = {
+      Estado: "Estado",
+      Marca: "Marca",
+      Material: "Material",
+      Características: "Características"
+    };
+    // Create two objects: one for known specifications and one for others
+    const specifications: { [key: string]: string } = {};
+    const otherSpecifications: Characteristic[] = [];
+
+    for (const char of characteristics) {
+      if (char.label in knownLabels) {
+        const key = knownLabels[char.label];
+        specifications[key] = char.value;
+      } else {
+        otherSpecifications.push(char);
+      }
+    }
+    return { specifications, otherSpecifications };
   }
 
   // Get listing's
@@ -191,14 +221,17 @@ export default class BasePage {
       ".ux-image-carousel-item.image-treatment.active img",
       (img) => img.getAttribute("src")
     );
-    let imageUrls = await this.page.$$eval(
+    let gallery = await this.page.$$eval(
       ".ux-image-carousel-item.image-treatment img",
       (imgs: HTMLImageElement[]) =>
         imgs.map((img) => img.getAttribute("data-zoom-src") || "")
     );
 
-    imageUrls = Array.from(new Set(imageUrls));
+    gallery = Array.from(new Set(gallery));
 
-    return { mainImage, imageUrls };
+    return { mainImage, gallery };
   }
+}
+function getImages() {
+  throw new Error("Function not implemented.");
 }
