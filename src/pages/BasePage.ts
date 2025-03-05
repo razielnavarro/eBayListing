@@ -61,13 +61,14 @@ export default class BasePage {
       throw new Error(`Could not get price: ${error}`);
     }
     const parsedPriceCost = this.parseDollarValue(price);
-    return parsedPriceCost;
+    const numericPrice = parseFloat(parsedPriceCost.replace(/[^\d.]/g, ""));
+    return numericPrice;
   }
 
   // Get shipping
   // costs
 
-  async getShipping(): Promise<string> {
+  async getShipping(): Promise<number> {
     try {
       let shippingCost = await this.page.$eval(
         "div.ux-layout-section--shipping div.ux-labels-values--shipping span.ux-textspans.ux-textspans--BOLD",
@@ -81,7 +82,8 @@ export default class BasePage {
         );
       }
       const parsedShippingCost = this.parseDollarValue(shippingCost);
-      return parsedShippingCost;
+      const numericShipping = parseFloat(parsedShippingCost.replace(/[^\d.]/g, ""));
+      return numericShipping;
     } catch (error) {
       throw new Error(`Could not get shipping cost: ${error}`);
     }
