@@ -134,15 +134,8 @@ export default class BasePage {
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
 
-    // Wait for the page to fully load
-    await this.page.waitForSelector(
-      "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river",
-      { hidden: true }
-    );
-    await this.page.waitForNavigation({
-      waitUntil: 'networkidle0',
-      timeout: 15000,
-    });
+    await this.page.waitForNavigation();
+
     await this.page.content();
   }
 
@@ -172,7 +165,9 @@ export default class BasePage {
     const rows = await this.page.$$(".ux-layout-section-evo__col");
     const characteristics = [];
     for (const row of rows) {
-      try {
+      const labelEl = await row.$(".ux-labels-values__labels-content");
+      const valueEl = await row.$(".ux-labels-values__values-content");
+      if (labelEl && valueEl) {
         const label = await row.$eval(
           ".ux-labels-values__labels-content",
           (el) => el.textContent?.trim()
@@ -182,8 +177,6 @@ export default class BasePage {
           (el) => el.textContent?.trim()
         );
         characteristics.push({ label, value });
-      } catch (error) {
-        console.log(`Could not get details: ${error}`);
       }
     }
     return characteristics;
