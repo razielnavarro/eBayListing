@@ -10,6 +10,14 @@ export default class BasePage {
     this.page = page;
   }
 
+  // Helper function to parse the shipping cost string
+  private parseDollarValue(text: string): string {
+    // This regex finds a dollar sign followed by the number with optional decimals.
+    const regex = /\$\s*\d+(?:[.,]\d+)?/;
+    const match = text.match(regex);
+    return match ? match[0].replace(/\s+/g, "") : text;
+  }
+
   async visit(url: string) {
     await this.page.goto(url);
   }
@@ -52,20 +60,13 @@ export default class BasePage {
     } catch (error) {
       throw new Error(`Could not get price: ${error}`);
     }
-    return price;
+    const parsedPriceCost = this.parseDollarValue(price);
+    return parsedPriceCost;
   }
 
   // Get shipping
   // costs
 
-  // Helper function to parse the shipping cost string
-private parseShippingCost(shippingCost: string): string {
-  // This regex finds a dollar sign followed by the number with optional decimals.
-  const regex = /\$\s*\d+(?:[.,]\d+)?/;
-  const match = shippingCost.match(regex);
-  return match ? match[0].replace(/\s+/g, '') : shippingCost;
-}
-  
   async getShipping(): Promise<string> {
     try {
       let shippingCost = await this.page.$eval(
@@ -79,7 +80,7 @@ private parseShippingCost(shippingCost: string): string {
           (el) => el.innerHTML
         );
       }
-      const parsedShippingCost = this.parseShippingCost(shippingCost);
+      const parsedShippingCost = this.parseDollarValue(shippingCost);
       return parsedShippingCost;
     } catch (error) {
       throw new Error(`Could not get shipping cost: ${error}`);
