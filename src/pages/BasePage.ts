@@ -120,6 +120,10 @@ export default class BasePage {
       await this.page.keyboard.press("Backspace");
       await this.page.type("#shZipCode", "33172");
     }
+    await this.page.waitForFunction(() => {
+      const input = document.querySelector('#shZipCode');
+      return input && (input as HTMLInputElement).value === '33172';
+    });
 
     // Submit button
     await this.page.waitForSelector(
@@ -142,7 +146,9 @@ export default class BasePage {
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
 
-    await this.page.waitForNavigation();
+    await this.page.waitForNavigation({
+      waitUntil: "networkidle0",
+    });
 
     await this.page.content();
   }
