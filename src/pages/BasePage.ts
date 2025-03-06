@@ -121,8 +121,8 @@ export default class BasePage {
       await this.page.type("#shZipCode", "33172");
     }
     await this.page.waitForFunction(() => {
-      const input = document.querySelector('#shZipCode');
-      return input && (input as HTMLInputElement).value === '33172';
+      const input = document.querySelector("#shZipCode");
+      return input && (input as HTMLInputElement).value === "33172";
     });
 
     // Submit button
@@ -147,10 +147,10 @@ export default class BasePage {
     );
 
     await this.page.waitForNavigation({
-      waitUntil: "networkidle0",
+      waitUntil: ["networkidle0", "load"],
     });
 
-    await this.page.content();
+    await this.page.reload();
   }
 
   // Select spanish as the
@@ -203,7 +203,7 @@ export default class BasePage {
       Estado: "Estado",
       Marca: "Marca",
       Material: "Material",
-      Características: "Características"
+      Características: "Características",
     };
     // Create two objects: one for known specifications and one for others
     const specifications: { [key: string]: string } = {};
