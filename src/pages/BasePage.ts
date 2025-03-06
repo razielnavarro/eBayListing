@@ -147,10 +147,10 @@ export default class BasePage {
     );
 
     await this.page.waitForNavigation({
-      waitUntil: ["networkidle0", "load"],
+      waitUntil: "networkidle0",
     });
 
-    await this.page.reload();
+    await this.page.content();
   }
 
   // Select spanish as the
