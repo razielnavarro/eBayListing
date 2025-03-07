@@ -72,7 +72,7 @@ export default class ebayScraper {
   // Get shipping
   // costs
 
-  async getShipping(): Promise<number> {
+  async getShipping(): Promise<number | string> {
     try {
       let shippingCost = await this.page.$eval(
         "div.ux-layout-section--shipping div.ux-labels-values--shipping span.ux-textspans.ux-textspans--BOLD",
