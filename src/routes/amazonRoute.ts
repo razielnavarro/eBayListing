@@ -19,9 +19,10 @@ amazon.post("/", async (c) => {
   );
 
   await scraper.visit(url);
- const title = await scraper.getTitle();
+  const title = await scraper.getTitle();
+  const price = await scraper.getPrice();
 
   await browser.close();
 
-  return c.json({ title });
+  return c.json({ title, price });
 });

@@ -35,4 +35,20 @@ export default class amazonScraper {
       throw new Error(`Could not get title: ${error}`);
     }
   }
+
+  // Get the listing's
+  // price
+
+  async getPrice(){
+    let price: string;
+    try {
+      await this.page.waitForSelector("div.a-section.a-spacing-none.aok-align-center.aok-relative > span.aok-offscreen");
+      price = await this.page.$eval("div.a-section.a-spacing-none.aok-align-center.aok-relative > span.aok-offscreen", (el) => el.innerHTML);
+      const parsedPriceCost = this.parseDollarValue(price);
+      const numericPrice = parseFloat(parsedPriceCost.replace(/[^\d.]/g, ""));
+      return numericPrice;
+    } catch (error) {
+      throw new Error(`Could not get price: ${error}`);
+    }
+  }
 }
