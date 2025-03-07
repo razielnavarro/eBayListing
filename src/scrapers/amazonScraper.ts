@@ -1,11 +1,10 @@
-import puppeteerExtra from 'puppeteer-extra';
-import stealth from 'puppeteer-extra-plugin-stealth';
-import * as puppeteer from 'puppeteer';
+import puppeteerExtra from "puppeteer-extra";
+import stealth from "puppeteer-extra-plugin-stealth";
+import * as puppeteer from "puppeteer";
 
 puppeteerExtra.use(stealth());
 
 export default class amazonScraper {
-    
   private browser: puppeteer.Browser;
   private page: puppeteer.Page;
 
@@ -24,5 +23,16 @@ export default class amazonScraper {
 
   async visit(url: string) {
     await this.page.goto(url);
+  }
+
+  // Get listing's
+  // item title
+  async getTitle() {
+    try {
+      await this.page.waitForSelector("#productTitle");
+      return await this.page.$eval("#productTitle", (el) => el.innerHTML);
+    } catch (error) {
+      throw new Error(`Could not get title: ${error}`);
+    }
   }
 }
