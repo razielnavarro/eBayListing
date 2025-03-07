@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import * as puppeteer from "puppeteer";
 import BasePage from "../pages/BasePage";
 
-export const listingInfo = new Hono();
+export const ebayScraper = new Hono();
 
-listingInfo.post("/", async (c) => {
+ebayScraper.post("/", async (c) => {
   const url = await c.req.json();
   if (!url) {
     return c.json({ error: "URL is required" }, 400);
