@@ -1,20 +1,19 @@
 import { Hono } from "hono";
 import * as puppeteer from "puppeteer";
-import AmazonPage from "../pages/amazonScraping";
+import amazonScraper from "../scrapers/amazonScraper";
 
-export const amazonScraper = new Hono();
+export const amazon = new Hono();
 
-amazonScraper.post("/", async (c) => {
+amazon.post("/", async (c) => {
   const url = await c.req.json();
   if (!url) {
     return c.json({ error: "URL is required" }, 400);
   }
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
-  const amazonPage = new AmazonPage(browser, page);
+  const scraper = new amazonScraper(browser, page);
 
-  await amazonPage.visit(url);
+  await scraper.visit(url);
 
   await browser.close();
-
 });

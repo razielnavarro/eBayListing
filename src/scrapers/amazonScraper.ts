@@ -1,8 +1,11 @@
-import * as puppeteer from "puppeteer";
-import * as puppeteerExtra from 'puppeteer-extra';
-const stealth = require('puppeteer-extra-plugin-stealth');
+import puppeteerExtra from 'puppeteer-extra';
+import stealth from 'puppeteer-extra-plugin-stealth';
+import * as puppeteer from 'puppeteer';
 
-export default class AmazonPage {
+puppeteerExtra.use(stealth());
+
+export default class amazonScraper {
+    
   private browser: puppeteer.Browser;
   private page: puppeteer.Page;
 

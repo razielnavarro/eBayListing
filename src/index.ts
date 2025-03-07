@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { serve } from '@hono/node-server'
 
-import { ebayScraper } from "./controllers/ebayScraper";
-import { amazonScraper } from "./controllers/amazonScraper";
+import { ebay } from "./routes/ebayRoute";
+import { amazon } from "./routes/amazonRoute";
 
 const app = new Hono();
 
-app.route('ebayScraper', ebayScraper);
-app.route('amazonScraper', amazonScraper);
+app.route('ebayScraper', ebay);
+app.route('amazonScraper', amazon);
 
 serve({
   fetch: app.fetch,

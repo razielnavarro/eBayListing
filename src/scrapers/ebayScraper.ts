@@ -5,7 +5,7 @@ import type {
   StructuredCharacteristics,
 } from "../common/types";
 
-export default class BasePage {
+export default class ebayScraper {
   private browser: puppeteer.Browser;
   private page: puppeteer.Page;
 
