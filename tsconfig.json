@@ -6,6 +6,7 @@
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "types": [
       "node"
     ],

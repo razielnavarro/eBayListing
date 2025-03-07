@@ -14,7 +14,6 @@ amazonScraper.post("/", async (c) => {
   const amazonPage = new AmazonPage(browser, page);
 
   await amazonPage.visit(url);
-  await amazonPage.getTitle();
 
   await browser.close();
 

@@ -1,4 +1,6 @@
 import * as puppeteer from "puppeteer";
+import * as puppeteerExtra from 'puppeteer-extra';
+const stealth = require('puppeteer-extra-plugin-stealth');
 
 export default class AmazonPage {
   private browser: puppeteer.Browser;

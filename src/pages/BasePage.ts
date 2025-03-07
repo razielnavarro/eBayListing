@@ -38,7 +38,7 @@ export default class BasePage {
         (el) => el.innerHTML
       );
     } catch (error) {
-      throw new Error(`Could not get price: ${error}`);
+      throw new Error(`Could not get title: ${error}`);
     }
   }
 
