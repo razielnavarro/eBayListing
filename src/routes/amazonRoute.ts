@@ -26,10 +26,11 @@ amazon.post("/", async (c) => {
   await scraper.visit(url);
   await scraper.selectCountry();
   const title = await scraper.getTitle();
+  const reviews = await scraper.getReviews();
   const images = await scraper.getImages();
   const price = await scraper.getPrice();
 
   await browser.close();
 
-  return c.json({ title, price, images });
+  return c.json({ title, price, reviews, images });
 });

@@ -220,4 +220,26 @@ export default class amazonScraper {
       gallery,
     };
   }
+
+  // Get item's reviews
+
+  async getReviews() {
+    await this.page.waitForSelector(
+      "#acrPopover > span.a-declarative > a > span"
+    );
+    const rating = await this.page.$eval(
+      "#acrPopover > span.a-declarative > a > span",
+      (el) => el.textContent
+    );
+    await this.page.waitForSelector("#acrCustomerReviewText");
+    const totalReviewsText = await this.page.$eval(
+      "#acrCustomerReviewText",
+      (el) => el.textContent
+    );
+    const totalReviews = parseInt(
+      totalReviewsText?.match(/[\d,]+/)?.[0]?.replace(/,/g, "") || "0",
+      10
+    );
+    return { rating, totalReviews };
+  }
 }
