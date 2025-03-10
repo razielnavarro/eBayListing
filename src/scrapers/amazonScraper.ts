@@ -88,7 +88,7 @@ export default class amazonScraper {
   // ZIP code 33172
   async selectCountry() {
     // Helper function for a manual delay
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Open the location popover with human-like behavior
     await this.page.waitForSelector("#nav-global-location-popover-link", {
