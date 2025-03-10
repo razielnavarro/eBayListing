@@ -238,6 +238,3 @@ export default class ebayScraper {
     return { mainImage, gallery };
   }
 }
-function getImages() {
-  throw new Error("Function not implemented.");
-}
