@@ -227,10 +227,16 @@ export default class amazonScraper {
     await this.page.waitForSelector(
       "#acrPopover > span.a-declarative > a > span"
     );
-    const rating = await this.page.$eval(
+    const ratingText = await this.page.$eval(
       "#acrPopover > span.a-declarative > a > span",
       (el) => el.textContent
     );
+
+    if (!ratingText) {
+      throw new Error("Rating text is null or undefined");
+    }
+
+    const rating = parseFloat(ratingText.match(/[\d.]+/)?.[0] || "0");
     await this.page.waitForSelector("#acrCustomerReviewText");
     const totalReviewsText = await this.page.$eval(
       "#acrCustomerReviewText",
