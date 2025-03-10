@@ -30,7 +30,9 @@ export default class amazonScraper {
   async getTitle() {
     try {
       await this.page.waitForSelector("#productTitle");
-      return await this.page.$eval("#productTitle", (el) => el.innerHTML.trim());
+      return await this.page.$eval("#productTitle", (el) =>
+        el.innerHTML.trim()
+      );
     } catch (error) {
       throw new Error(`Could not get title: ${error}`);
     }
@@ -88,7 +90,8 @@ export default class amazonScraper {
   // ZIP code 33172
   async selectCountry() {
     // Helper function for a manual delay
-    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
 
     // Open the location popover with human-like behavior
     await this.page.waitForSelector("#nav-global-location-popover-link", {
