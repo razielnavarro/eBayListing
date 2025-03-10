@@ -30,7 +30,7 @@ export default class amazonScraper {
   async getTitle() {
     try {
       await this.page.waitForSelector("#productTitle");
-      return await this.page.$eval("#productTitle", (el) => el.innerHTML);
+      return await this.page.$eval("#productTitle", (el) => el.innerHTML.trim());
     } catch (error) {
       throw new Error(`Could not get title: ${error}`);
     }
