@@ -169,4 +169,54 @@ export default class amazonScraper {
       );
     }
   }
+
+  // Get listing's
+  // images
+  async getImages() {
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
+    // 1) Click the main image to open the modal.
+    await this.page.click("li.image.item.itemNo0.maintain-height.selected");
+    // Wait for the modal’s large image container to appear.
+    await this.page.waitForSelector("#ivLargeImage img");
+
+    // 2) Gather all thumbnails from all rows in the modal.
+    //    Each row has an id like "ivRow", and inside it are divs with class "ivThumb".
+    const rows = await this.page.$$(".ivRow"); // or a more general "div.ivRow" selector if needed
+
+    const imageURLs = [];
+
+    for (const row of rows) {
+      // Get all thumbnails in this row
+      const thumbs = await row.$$(".ivThumb");
+      for (const thumb of thumbs) {
+        await delay(400);
+        // 3) Click the thumbnail to make it the "selected" image.
+        await thumb.click();
+
+        // 4) Wait for the large image to update (and be visible).
+        await this.page.waitForSelector("#ivLargeImage img", { visible: true });
+
+        // Now scrape the large image URL
+        const largeUrl = await this.page.$eval(
+          "#ivLargeImage img",
+          (img) => img.src
+        );
+        imageURLs.push(largeUrl);
+      }
+    }
+
+    // Remove duplicates
+    const uniqueImages = Array.from(new Set(imageURLs));
+
+    // The first one in `uniqueImages` is typically the main image (already clicked),
+    // but you can separate it out if needed:
+    const [mainImage, ...gallery] = uniqueImages;
+
+    return {
+      mainImage,
+      gallery,
+    };
+  }
 }
