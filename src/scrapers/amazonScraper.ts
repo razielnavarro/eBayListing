@@ -191,7 +191,7 @@ export default class amazonScraper {
       // Get all thumbnails in this row
       const thumbs = await row.$$(".ivThumb");
       for (const thumb of thumbs) {
-        await delay(400);
+        await delay(300);
         // 3) Click the thumbnail to make it the "selected" image.
         await thumb.click();
 
@@ -199,6 +199,7 @@ export default class amazonScraper {
         await this.page.waitForSelector("#ivLargeImage img", { visible: true });
 
         // Now scrape the large image URL
+        await delay(200);
         const largeUrl = await this.page.$eval(
           "#ivLargeImage img",
           (img) => img.src
