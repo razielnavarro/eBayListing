@@ -200,7 +200,10 @@ export default class amazonScraper {
           "#ivLargeImage img",
           (img) => img.src
         );
-        imageURLs.push(largeUrl);
+        // Only add the URL if it is not a GIF
+        if (!/\.gif(\?.*)?$/i.test(largeUrl)) {
+          imageURLs.push(largeUrl);
+        }
       }
     }
 
