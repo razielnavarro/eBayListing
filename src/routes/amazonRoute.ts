@@ -7,7 +7,7 @@ import stealth from "puppeteer-extra-plugin-stealth";
 export const amazon = new Hono();
 puppeteerExtra.use(stealth());
 
-export async function amazonScraperHandler(url: string){
+export async function amazonScraperHandler(url: string) {
   const browser = await puppeteerExtra.launch({ headless: false });
   const page = await browser.newPage();
   const scraper = new amazonScraper(browser, page);
@@ -17,7 +17,6 @@ export async function amazonScraperHandler(url: string){
       "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
   );
 
-  await page.setViewport({ width: 1280, height: 720 }); 
 
   await scraper.visit(url);
   await scraper.selectCountry();
@@ -27,9 +26,9 @@ export async function amazonScraperHandler(url: string){
   const price = await scraper.getPrice();
   const discount = await scraper.isDiscounted();
   const asin = await scraper.getASIN();
-
+  const brand = await scraper.getBrand();
 
   await browser.close();
 
-  return { title, asin, price, discount, reviews, images };
+  return { title, brand, asin, price, discount, reviews, images };
 }

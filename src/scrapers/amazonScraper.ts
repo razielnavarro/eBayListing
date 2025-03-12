@@ -13,6 +13,9 @@ export default class amazonScraper {
     this.page = page;
   }
 
+  private delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   // Helper function to parse the shipping cost string
   private parseDollarValue(text: string): string {
     // This regex finds a dollar sign followed by the number with optional decimals.
@@ -90,25 +93,25 @@ export default class amazonScraper {
   // ZIP code 33172
   async selectCountry() {
     // Helper function for a manual delay
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
+    // const delay = (ms: number) =>
+    //   new Promise((resolve) => setTimeout(resolve, ms));
 
     // Open the location popover with human-like behavior
     await this.page.waitForSelector("#nav-global-location-popover-link", {
       visible: true,
     });
     await this.page.hover("#nav-global-location-popover-link");
-    await delay(500); // Pause to simulate human reaction time
+    await this.delay(500); // Pause to simulate human reaction time
     await this.page.click("#nav-global-location-popover-link");
 
-    await delay(500); // Pause after opening the popover
+    await this.delay(500); // Pause after opening the popover
 
     // Wait for and type the ZIP code with a delay to simulate human typing
     await this.page.waitForSelector("#GLUXZipUpdateInput", { visible: true });
     await this.page.click("#GLUXZipUpdateInput");
-    await delay(300);
+    await this.delay(300);
     await this.page.type("#GLUXZipUpdateInput", "33172", { delay: 150 });
-    await delay(500);
+    await this.delay(500);
 
     // Wait for the apply button to be visible and click it
     await this.page.waitForSelector(
@@ -116,11 +119,11 @@ export default class amazonScraper {
       { visible: true }
     );
     await this.page.hover('input[aria-labelledby="GLUXZipUpdate-announce"]');
-    await delay(300);
+    await this.delay(300);
     await this.page.click('input[aria-labelledby="GLUXZipUpdate-announce"]');
 
     // Wait for the update process to complete
-    await delay(2000);
+    await this.delay(2000);
 
     // Close the modal
     await this.page.waitForSelector(
@@ -132,7 +135,7 @@ export default class amazonScraper {
     await this.page.hover(
       'div.a-popover-wrapper header.a-popover-header button[data-action="a-popover-close"]'
     );
-    await delay(300);
+    await this.delay(300);
     await this.page.click(
       'div.a-popover-wrapper header.a-popover-header button[data-action="a-popover-close"]'
     );
@@ -173,9 +176,6 @@ export default class amazonScraper {
   // Get listing's
   // images
   async getImages() {
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
-
     // 1) Click the main image to open the modal.
     await this.page.click("li.image.item.itemNo0.maintain-height.selected");
     // Wait for the modal’s large image container to appear.
@@ -191,7 +191,7 @@ export default class amazonScraper {
       // Get all thumbnails in this row
       const thumbs = await row.$$(".ivThumb");
       for (const thumb of thumbs) {
-        await delay(300);
+        await this.delay(300);
         // 3) Click the thumbnail to make it the "selected" image.
         await thumb.click();
 
@@ -199,7 +199,7 @@ export default class amazonScraper {
         await this.page.waitForSelector("#ivLargeImage img", { visible: true });
 
         // Now scrape the large image URL
-        await delay(200);
+        await this.delay(200);
         const largeUrl = await this.page.$eval(
           "#ivLargeImage img",
           (img) => img.src
@@ -214,7 +214,15 @@ export default class amazonScraper {
     // The first one in `uniqueImages` is typically the main image (already clicked),
     // but you can separate it out if needed:
     const [mainImage, ...gallery] = uniqueImages;
-
+    await this.delay(200);
+    // const close = await this.page.$(
+    //   '#a-popover-12 .a-popover-wrapper header button[data-action="a-popover-close"]'
+    // );
+    // if (close) {
+    //   await close.hover();
+    //   await close.click();
+    // }
+    await this.page.click("#a-popover-7 > div > header > button");
     return {
       mainImage,
       gallery,
@@ -270,4 +278,46 @@ export default class amazonScraper {
     const asin = match ? match[1] : "";
     return asin;
   }
+
+  async getBrand() {
+    try {
+      // Wait for the parent container to ensure the table is loaded
+      await this.page.waitForSelector("#productDetails_techSpec_section_2", { timeout: 5000 });
+      
+      // Optionally, scroll the container into view if needed
+      await this.page.evaluate(() => {
+        const container = document.querySelector("#productDetails_techSpec_section_2");
+        if (container) container.scrollIntoView();
+      });
+      
+      // Evaluate the page to locate the manufacturer row and extract its value
+      let brand = await this.page.evaluate(() => {
+        const table = document.querySelector("#productDetails_techSpec_section_2");
+        if (!table) return null;
+    
+        // Look through each table row
+        const rows = table.querySelectorAll("tr");
+        for (const row of rows) {
+          const th = row.querySelector("th");
+          const td = row.querySelector("td");
+          if (th && td && th.innerText.trim().toLowerCase().includes("manufacturer")) {
+            return td.innerText.trim();
+          }
+        }
+        return null;
+      });
+      
+      if (brand) {
+        brand = brand
+          .replace(/\u200E/g, "")
+          .replace(/\u200F/g, "")
+          .trim();
+      }
+      return brand;
+    } catch (error) {
+      console.error("Brand element not found:", error);
+      return null;
+    }
+  }
+  
 }
