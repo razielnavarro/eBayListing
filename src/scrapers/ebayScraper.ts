@@ -9,6 +9,9 @@ export default class ebayScraper {
   private browser: puppeteer.Browser;
   private page: puppeteer.Page;
 
+  private delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   constructor(browser: puppeteer.Browser, page: puppeteer.Page) {
     this.browser = browser;
     this.page = page;
@@ -119,13 +122,16 @@ export default class ebayScraper {
       await this.page.click("#shZipCode", { clickCount: 3 });
       await this.page.keyboard.press("Backspace");
       await this.page.type("#shZipCode", "33172");
+      await this.page.waitForFunction(() => {
+        const input = document.querySelector("#shZipCode");
+        return input && (input as HTMLInputElement).value === "33172";
+      });
+    } else {
+      console.log("ZIP code input not found. Continuing to next step.");
     }
-    await this.page.waitForFunction(() => {
-      const input = document.querySelector("#shZipCode");
-      return input && (input as HTMLInputElement).value === "33172";
-    });
 
     // Submit button
+    await this.delay(300);
     await this.page.waitForSelector(
       ".x-shipping-calculator__getRates button[type='submit'].btn--primary"
     );
@@ -149,6 +155,9 @@ export default class ebayScraper {
     await this.page.waitForNavigation({
       waitUntil: "networkidle0",
     });
+
+    await this.delay(500);
+
 
     await this.page.content();
   }
