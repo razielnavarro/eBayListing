@@ -4,11 +4,7 @@ import ebayScraper from "../scrapers/ebayScraper";
 
 export const ebay = new Hono();
 
-ebay.post("/", async (c) => {
-  const url = await c.req.json();
-  if (!url) {
-    return c.json({ error: "URL is required" }, 400);
-  }
+export async function ebayScraperHandler(url: string){
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   const scraper = new ebayScraper(browser, page);
@@ -26,5 +22,5 @@ ebay.post("/", async (c) => {
 
   await browser.close();
 
-  return c.json({ title, price, shipping, specifications, images });
-});
+  return { title, price, shipping, specifications, images };
+};

@@ -7,11 +7,7 @@ import stealth from "puppeteer-extra-plugin-stealth";
 export const amazon = new Hono();
 puppeteerExtra.use(stealth());
 
-amazon.post("/", async (c) => {
-  const url = await c.req.json();
-  if (!url) {
-    return c.json({ error: "URL is required" }, 400);
-  }
+export async function amazonScraperHandler(url: string){
   const browser = await puppeteerExtra.launch({ headless: false });
   const page = await browser.newPage();
   const scraper = new amazonScraper(browser, page);
@@ -34,5 +30,5 @@ amazon.post("/", async (c) => {
 
   await browser.close();
 
-  return c.json({ title, price, discount, reviews, images });
-});
+  return { title, price, discount, reviews, images };
+}
