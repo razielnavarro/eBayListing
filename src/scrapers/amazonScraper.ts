@@ -297,7 +297,7 @@ export default class amazonScraper {
             if (
               th &&
               td &&
-              th.innerText.trim().toLowerCase() === ("manufacturer")
+              th.innerText.trim().toLowerCase() === "manufacturer"
             ) {
               return td.innerText.trim();
             }
@@ -317,5 +317,24 @@ export default class amazonScraper {
       console.error("Brand element not found:", error);
       return null;
     }
+  }
+
+  async getCategories() {
+    await this.page.waitForSelector(
+      "#wayfinding-breadcrumbs_feature_div > ul"
+    );
+
+    const items = await this.page.$$(
+"#wayfinding-breadcrumbs_feature_div > ul > li > span > a"
+    );
+
+    const categories = [];
+
+    for (const item of items) {
+      await this.delay(200);
+      const category = await item.evaluate(el => el.textContent ? el.textContent.trim() : '');
+      categories.push(category);  
+    }
+    return categories;
   }
 }

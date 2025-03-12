@@ -27,8 +27,9 @@ export async function amazonScraperHandler(url: string) {
   const discount = await scraper.isDiscounted();
   const asin = await scraper.getASIN();
   const brand = await scraper.getBrand();
+  const categories = await scraper.getCategories();
 
   await browser.close();
 
-  return { title, brand, asin, price, discount, reviews, images };
+  return { title, brand, categories, asin, price, discount, reviews, images };
 }
