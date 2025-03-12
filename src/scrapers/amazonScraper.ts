@@ -250,13 +250,24 @@ export default class amazonScraper {
   }
 
   async isDiscounted() {
-    const discountElement = await this.page.$(".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage");
+    const discountElement = await this.page.$(
+      ".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage"
+    );
     if (discountElement) {
-      const discount = await this.page.$eval(".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage", (el) => el.textContent);
+      const discount = await this.page.$eval(
+        ".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage",
+        (el) => el.textContent
+      );
       return true;
-    }
-    else {
+    } else {
       return false;
     }
+  }
+
+  async getASIN() {
+    const url = await this.page.url();
+    const match = url.match(/\/dp\/(\w{10})/);
+    const asin = match ? match[1] : "";
+    return asin;
   }
 }
