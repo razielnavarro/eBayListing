@@ -212,8 +212,12 @@ export default class amazonScraper {
     const [mainImage, ...gallery] = uniqueImages;
     await this.delay(200);
     // 5) Close the modal.
-    await this.page.waitForSelector("#a-popover-7 > div > header > button");
-    await this.page.click("#a-popover-7 > div > header > button");
+    await this.page.waitForSelector(
+      'div.a-popover.a-popover-modal.a-declarative.a-popover-modal-fixed-height button[data-action="a-popover-close"]'
+    );
+    await this.page.click(
+      'div.a-popover.a-popover-modal.a-declarative.a-popover-modal-fixed-height button[data-action="a-popover-close"]'
+    );
     return {
       mainImage,
       gallery,
