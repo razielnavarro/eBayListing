@@ -297,7 +297,7 @@ export default class amazonScraper {
             if (
               th &&
               td &&
-              th.innerText.trim().toLowerCase().includes("manufacturer")
+              th.innerText.trim().toLowerCase() === ("manufacturer")
             ) {
               return td.innerText.trim();
             }
