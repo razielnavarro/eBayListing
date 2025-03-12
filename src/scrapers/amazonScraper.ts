@@ -320,21 +320,32 @@ export default class amazonScraper {
   }
 
   async getCategories() {
-    await this.page.waitForSelector(
-      "#wayfinding-breadcrumbs_feature_div > ul"
-    );
+    await this.page.waitForSelector("#wayfinding-breadcrumbs_feature_div > ul");
 
     const items = await this.page.$$(
-"#wayfinding-breadcrumbs_feature_div > ul > li > span > a"
+      "#wayfinding-breadcrumbs_feature_div > ul > li > span > a"
     );
 
     const categories = [];
 
     for (const item of items) {
       await this.delay(200);
-      const category = await item.evaluate(el => el.textContent ? el.textContent.trim() : '');
-      categories.push(category);  
+      const category = await item.evaluate((el) =>
+        el.textContent ? el.textContent.trim() : ""
+      );
+      categories.push(category);
     }
     return categories;
+  }
+
+  async getAmazonChoice() {
+    const amazonChoice = await this.page.$(
+      "#acBadge_feature_div > div > span.a-declarative"
+    );
+    if (amazonChoice) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
