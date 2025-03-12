@@ -92,9 +92,6 @@ export default class amazonScraper {
   // country and enter the
   // ZIP code 33172
   async selectCountry() {
-    // Helper function for a manual delay
-    // const delay = (ms: number) =>
-    //   new Promise((resolve) => setTimeout(resolve, ms));
 
     // Open the location popover with human-like behavior
     await this.page.waitForSelector("#nav-global-location-popover-link", {
@@ -215,13 +212,7 @@ export default class amazonScraper {
     // but you can separate it out if needed:
     const [mainImage, ...gallery] = uniqueImages;
     await this.delay(200);
-    // const close = await this.page.$(
-    //   '#a-popover-12 .a-popover-wrapper header button[data-action="a-popover-close"]'
-    // );
-    // if (close) {
-    //   await close.hover();
-    //   await close.click();
-    // }
+    // 5) Close the modal.
     await this.page.click("#a-popover-7 > div > header > button");
     return {
       mainImage,
