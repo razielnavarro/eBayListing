@@ -29,8 +29,10 @@ amazon.post("/", async (c) => {
   const reviews = await scraper.getReviews();
   const images = await scraper.getImages();
   const price = await scraper.getPrice();
+  const discount = await scraper.isDiscounted();
+
 
   await browser.close();
 
-  return c.json({ title, price, reviews, images });
+  return c.json({ title, price, discount, reviews, images });
 });

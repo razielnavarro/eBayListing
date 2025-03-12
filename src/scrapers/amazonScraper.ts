@@ -248,4 +248,15 @@ export default class amazonScraper {
     );
     return { rating, totalReviews };
   }
+
+  async isDiscounted() {
+    const discountElement = await this.page.$(".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage");
+    if (discountElement) {
+      const discount = await this.page.$eval(".a-size-large.a-color-price.savingPriceOverride.aok-align-center.reinventPriceSavingsPercentageMargin.savingsPercentage", (el) => el.textContent);
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
