@@ -92,7 +92,6 @@ export default class amazonScraper {
   // country and enter the
   // ZIP code 33172
   async selectCountry() {
-
     // Open the location popover with human-like behavior
     await this.page.waitForSelector("#nav-global-location-popover-link", {
       visible: true,
@@ -188,7 +187,7 @@ export default class amazonScraper {
       // Get all thumbnails in this row
       const thumbs = await row.$$(".ivThumb");
       for (const thumb of thumbs) {
-        await this.delay(300);
+        await this.delay(400);
         // 3) Click the thumbnail to make it the "selected" image.
         await thumb.click();
 
@@ -213,6 +212,7 @@ export default class amazonScraper {
     const [mainImage, ...gallery] = uniqueImages;
     await this.delay(200);
     // 5) Close the modal.
+    await this.page.waitForSelector("#a-popover-7 > div > header > button");
     await this.page.click("#a-popover-7 > div > header > button");
     return {
       mainImage,
@@ -273,31 +273,35 @@ export default class amazonScraper {
   async getBrand() {
     try {
       // Wait for the parent container to ensure the table is loaded
-      await this.page.waitForSelector("#productDetails_techSpec_section_2", { timeout: 5000 });
-      
-      // Optionally, scroll the container into view if needed
-      await this.page.evaluate(() => {
-        const container = document.querySelector("#productDetails_techSpec_section_2");
-        if (container) container.scrollIntoView();
+      await this.page.waitForSelector("#productDetails_feature_div", {
+        timeout: 5000,
       });
-      
+
       // Evaluate the page to locate the manufacturer row and extract its value
       let brand = await this.page.evaluate(() => {
-        const table = document.querySelector("#productDetails_techSpec_section_2");
-        if (!table) return null;
-    
+        const container = document.querySelector("#productDetails_feature_div");
+        if (!container) return null;
+
         // Look through each table row
-        const rows = table.querySelectorAll("tr");
-        for (const row of rows) {
-          const th = row.querySelector("th");
-          const td = row.querySelector("td");
-          if (th && td && th.innerText.trim().toLowerCase().includes("manufacturer")) {
-            return td.innerText.trim();
+        // Query all tables inside this container
+        const tables = container.querySelectorAll("table");
+        for (const table of tables) {
+          const rows = table.querySelectorAll("tr");
+          for (const row of rows) {
+            const th = row.querySelector("th");
+            const td = row.querySelector("td");
+            if (
+              th &&
+              td &&
+              th.innerText.trim().toLowerCase().includes("manufacturer")
+            ) {
+              return td.innerText.trim();
+            }
           }
         }
         return null;
       });
-      
+
       if (brand) {
         brand = brand
           .replace(/\u200E/g, "")
@@ -310,5 +314,4 @@ export default class amazonScraper {
       return null;
     }
   }
-  
 }
