@@ -1,15 +1,42 @@
 import { Hono } from "hono";
-import * as puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import sheinScraper from "../scrapers/sheinScraper";
+
+// Use the stealth plugin to mask automation fingerprints
+puppeteer.use(StealthPlugin());
 
 export const shein = new Hono();
 
 export async function sheinScraperHandler(url: string) {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: ["--disable-blink-features=AutomationControlled"],
+  });
   const page = await browser.newPage();
-  const scraper = new sheinScraper(browser, page);
 
+  // Override navigator.webdriver before any script runs
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, "webdriver", {
+      get: () => false,
+    });
+  });
+
+  await page.setViewport({
+    width: 1920,
+    height: 1080,
+    deviceScaleFactor: 1,
+  });
+
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+      "(KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+  );
+
+  const scraper = new sheinScraper(browser, page);
   await scraper.visit(url);
+  // Optionally, if needed, you can close popups
+  // await scraper.closePopup();
 
   const title = await scraper.getTitle();
   const price = await scraper.getPrice();
