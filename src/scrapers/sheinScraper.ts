@@ -2,7 +2,7 @@ import puppeteerExtra from "puppeteer-extra";
 import stealth from "puppeteer-extra-plugin-stealth";
 import * as puppeteer from "puppeteer";
 
-puppeteerExtra.use(stealth());
+// puppeteerExtra.use(stealth());
 
 export default class sheinScraper {
   private browser: puppeteer.Browser;
@@ -28,17 +28,18 @@ export default class sheinScraper {
     await this.page.goto(url);
   }
 
-//   Close pop up if visible
-async closePopup() {
-    const popUp = await this.page.$(".sui-popup-parent__hidden")
-    if(popUp) {
-        await this.delay(500);
-        await this.page.click(".body > div.j-vue-coupon-package-container.c-vue-coupon > div > div.sui-dialog.coupon-dialog > div > div > div.sui-dialog__body > div > div.dialog-header-v2 > div.dialog-header-v2__close-btn > svg")
+  //   Close pop up if visible
+  async closePopup() {
+    const popUp = await this.page.$(".sui-popup-parent__hidden");
+    if (popUp) {
+      await this.delay(700);
+      await this.page.click(
+        ".body > div.j-vue-coupon-package-container.c-vue-coupon > div > div.sui-dialog.coupon-dialog > div > div > div.sui-dialog__body > div > div.dialog-header-v2 > div.dialog-header-v2__close-btn > svg"
+      );
+    } else {
+      console.log("No pop up found");
     }
-    else{
-        console.log("No pop up found")
-    }
-}
+  }
 
   // Get listing's
   // item title
@@ -74,6 +75,21 @@ async closePopup() {
       return numericPrice;
     } catch (error) {
       throw new Error(`Could not get price: ${error}`);
+    }
+  }
+
+  // Get SKU
+  async getSku() {
+    try {
+      await this.page.waitForSelector(
+        "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > div.product-intro__head-sku-ctn > div.product-intro__head-sku > span.product-intro__head-sku-text"
+      );
+      return await this.page.$eval(
+        "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > div.product-intro__head-sku-ctn > div.product-intro__head-sku > span.product-intro__head-sku-text",
+        (el) => el.innerHTML
+      );
+    } catch (error) {
+      throw new Error(`Could not get SKU: ${error}`);
     }
   }
 }

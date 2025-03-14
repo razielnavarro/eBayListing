@@ -40,8 +40,9 @@ export async function sheinScraperHandler(url: string) {
 
   const title = await scraper.getTitle();
   const price = await scraper.getPrice();
+  const sku = await scraper.getSku();
 
   await browser.close();
 
-  return { title, price };
+  return { title, sku, price };
 }
