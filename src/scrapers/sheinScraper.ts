@@ -29,42 +29,42 @@ export default class sheinScraper {
   }
 
   //   Close pop up if visible
-//   async closePopup() {
-//     let closeButton;
-//     try {
-//       // Wait for <body> to get the class indicating the popup is active
-//       await this.page.waitForFunction(
-//         () => document.body.classList.contains("sui-popup-parent__hidden"),
-//         { timeout: 10000 }
-//       );
+  //   async closePopup() {
+  //     let closeButton;
+  //     try {
+  //       // Wait for <body> to get the class indicating the popup is active
+  //       await this.page.waitForFunction(
+  //         () => document.body.classList.contains("sui-popup-parent__hidden"),
+  //         { timeout: 10000 }
+  //       );
 
-//       // Optional delay for the popup to fully load
-//       await this.delay(5000);
+  //       // Optional delay for the popup to fully load
+  //       await this.delay(5000);
 
-//       // Selector for the close button
-//       closeButton =
-//         "body > div.j-vue-coupon-package-container.c-vue-coupon > div > div.sui-dialog.coupon-dialog > div > div > div.sui-dialog__body > div > div.dialog-header-v2 > div.dialog-header-v2__close-btn > svg";
+  //       // Selector for the close button
+  //       closeButton =
+  //         "body > div.j-vue-coupon-package-container.c-vue-coupon > div > div.sui-dialog.coupon-dialog > div > div > div.sui-dialog__body > div > div.dialog-header-v2 > div.dialog-header-v2__close-btn > svg";
 
-//       // Wait for the close button to appear
-//       await this.page.waitForSelector(closeButton, { timeout: 10000 });
+  //       // Wait for the close button to appear
+  //       await this.page.waitForSelector(closeButton, { timeout: 10000 });
 
-//       // Hover over and click the close button
-//       await this.page.hover(closeButton);
-//       await this.page.click(closeButton);
-//       console.log("Popup closed successfully!");
+  //       // Hover over and click the close button
+  //       await this.page.hover(closeButton);
+  //       await this.page.click(closeButton);
+  //       console.log("Popup closed successfully!");
 
-//       // Wait for the popup to disappear, e.g., by waiting for the body class to be removed or a key element to be visible
-//       await this.page.waitForFunction(
-//         () => !document.body.classList.contains("sui-popup-parent__hidden"),
-//         { timeout: 10000 }
-//       );
+  //       // Wait for the popup to disappear, e.g., by waiting for the body class to be removed or a key element to be visible
+  //       await this.page.waitForFunction(
+  //         () => !document.body.classList.contains("sui-popup-parent__hidden"),
+  //         { timeout: 10000 }
+  //       );
 
-//       // Alternatively, wait for a main content element to appear again
-//       await this.page.waitForSelector("#goods-detail-v3", { timeout: 10000 });
-//     } catch (error) {
-//       console.log("Popup did not appear or an error occurred:", error);
-//     }
-//   }
+  //       // Alternatively, wait for a main content element to appear again
+  //       await this.page.waitForSelector("#goods-detail-v3", { timeout: 10000 });
+  //     } catch (error) {
+  //       console.log("Popup did not appear or an error occurred:", error);
+  //     }
+  //   }
 
   // Get listing's
   // item title
@@ -129,7 +129,6 @@ export default class sheinScraper {
 
   //   Get categories
   async getCategories() {
-
     // Get all the breadcrumb links
     const items = await this.page.$$(
       ".bread-crumb__item .bread-crumb__item-link"
@@ -146,5 +145,38 @@ export default class sheinScraper {
     }
 
     return categories;
+  }
+
+  // Get listing's
+  // images
+  async getImages() {
+    const items = await this.page.$$(
+      ".product-intro__thumbs-item .crop-image-container"
+    );
+    const imageURLs: string[] = [];
+
+    for (const item of items) {
+      // optional delay if needed
+      await this.delay(200);
+
+      // Grab the data-before-crop-src
+      const imageURL = await item.$eval(
+        ".crop-image-container img",
+        (img) => (img as HTMLImageElement).src
+      );
+
+      // Push into our array
+      if (imageURL) {
+        imageURLs.push(imageURL);
+      }
+    }
+
+    // Now remove duplicates
+    const uniqueImages = Array.from(new Set(imageURLs));
+
+    // Typically the first image is the "main" one
+    const [mainImage, ...gallery] = uniqueImages;
+
+    return { mainImage, gallery };
   }
 }
