@@ -80,16 +80,22 @@ export default class sheinScraper {
 
   // Get SKU
   async getSku() {
+    let initialSku: string;
     try {
       await this.page.waitForSelector(
         "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > div.product-intro__head-sku-ctn > div.product-intro__head-sku > span.product-intro__head-sku-text"
       );
-      return await this.page.$eval(
+      initialSku = await this.page.$eval(
         "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > div.product-intro__head-sku-ctn > div.product-intro__head-sku > span.product-intro__head-sku-text",
         (el) => el.innerHTML
       );
     } catch (error) {
       throw new Error(`Could not get SKU: ${error}`);
     }
+    const match = initialSku.match(/(?<=:\s*)\S+/);
+    if (match) {
+      const sku = match[0];
+      return sku;
   }
+}
 }
