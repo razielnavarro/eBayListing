@@ -1,7 +1,9 @@
 import { Hono } from "hono";
-import { serve } from '@hono/node-server';
+import { serve } from "@hono/node-server";
 import { amazonScraperHandler } from "./routes/amazonRoute";
 import { ebayScraperHandler } from "./routes/ebayRoute";
+import { sheinScraperHandler } from "./routes/sheinRoute";
+
 
 const app = new Hono();
 
@@ -16,6 +18,8 @@ app.post("/scraper", async (c) => {
     result = await amazonScraperHandler(url);
   } else if (url.includes("ebay.")) {
     result = await ebayScraperHandler(url);
+  } else if (url.includes("shein.")) {
+    result = await sheinScraperHandler(url);
   } else {
     return c.json({ error: "Unsupported site" }, 400);
   }
@@ -23,11 +27,14 @@ app.post("/scraper", async (c) => {
   return c.json(result);
 });
 
-serve({
-  fetch: app.fetch,
-  port: 3000,
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
-});
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  }
+);
 
 export default app;
