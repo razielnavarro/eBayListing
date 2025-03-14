@@ -44,17 +44,20 @@ export default class sheinScraper {
   // Get listing's
   // item title
   async getTitle() {
+    let initialTitle: string;
     try {
       await this.page.waitForSelector(
         "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > h1"
       );
-      return await this.page.$eval(
+      initialTitle = await this.page.$eval(
         "#goods-detail-v3 > div.goods-detailv2 > div.goods-detailv2__media > div > div.product-intro > div.product-intro__info > div.product-intro__info-sticky > div.product-intro__head.j-expose__product-intro__head > h1",
         (el) => el.innerHTML.trim()
       );
     } catch (error) {
       throw new Error(`Could not get title: ${error}`);
     }
+    const title = initialTitle.replace(/<!--.*?-->/g, "").trim();
+    return title;
   }
 
   // Get the listing's
@@ -96,6 +99,6 @@ export default class sheinScraper {
     if (match) {
       const sku = match[0];
       return sku;
+    }
   }
-}
 }
