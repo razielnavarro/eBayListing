@@ -22,11 +22,11 @@ export async function sheinScraperHandler(url: string) {
     });
   });
 
-  await page.setViewport({
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 1,
-  });
+    await page.setViewport({
+      width: 1920,
+      height: 1080,
+      deviceScaleFactor: 1,
+    });
 
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
@@ -35,14 +35,14 @@ export async function sheinScraperHandler(url: string) {
 
   const scraper = new sheinScraper(browser, page);
   await scraper.visit(url);
-  // Optionally, if needed, you can close popups
-  // await scraper.closePopup();
+  //   await scraper.closePopup();
 
   const title = await scraper.getTitle();
   const price = await scraper.getPrice();
   const sku = await scraper.getSku();
+  const categories = await scraper.getCategories();
 
   await browser.close();
 
-  return { title, sku, price };
+  return { title, sku, price, categories };
 }
