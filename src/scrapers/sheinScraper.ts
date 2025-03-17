@@ -222,7 +222,7 @@ export default class sheinScraper {
       await this.delay(200);
 
       const radioElement = await trigger.$(
-        "div.goods-color__radio.goods-color__radio_block"
+        "div.goods-color__radio.goods-color__radio_block, div.goods-color__radio.goods-color__radio_radio"
       );
       if (!radioElement) {
         continue;
@@ -239,9 +239,9 @@ export default class sheinScraper {
       if (imageElement) {
         imageUrl =
           (await imageElement.evaluate((img) => img.getAttribute("src"))) || "";
-          if (imageUrl && imageUrl.startsWith("//")) {
-            imageUrl = "https:" + imageUrl;
-          }
+        if (imageUrl && imageUrl.startsWith("//")) {
+          imageUrl = "https:" + imageUrl;
+        }
       }
 
       if (colorText) {
