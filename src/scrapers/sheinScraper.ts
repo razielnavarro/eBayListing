@@ -267,4 +267,26 @@ export default class sheinScraper {
     }
     return seller;
   }
+
+  async getReviews() {
+    const ratingText = await this.page.$eval(
+      ".rate-num-small",
+      (el) => el.textContent
+    );
+
+    if (!ratingText) {
+      throw new Error("Rating text is null or undefined");
+    }
+
+    const rating = parseFloat(ratingText.match(/[\d.]+/)?.[0] || "0");
+    const totalReviewsText = await this.page.$eval(
+      ".product-intro__head-reviews-text",
+      (el) => el.textContent
+    );
+    const totalReviews = parseInt(
+      totalReviewsText?.match(/[\d,]+/)?.[0]?.replace(/,/g, "") || "0",
+      10
+    );
+    return { rating, totalReviews };
+  }
 }
