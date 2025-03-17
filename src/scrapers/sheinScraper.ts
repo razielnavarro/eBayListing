@@ -236,9 +236,12 @@ export default class sheinScraper {
         el.getAttribute("aria-label")
       );
 
-      const imageElement = await radioElement.$(
+      let imageElement = await radioElement.$(
         "img.crop-image-container__img"
       );
+      if(!imageElement) {
+        imageElement = await radioElement.$(".radio-inner img");
+      }
       let imageUrl = "";
       if (imageElement) {
         imageUrl =
