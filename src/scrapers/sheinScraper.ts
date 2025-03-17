@@ -250,4 +250,21 @@ export default class sheinScraper {
     }
     return { colorsContainer };
   }
+
+  async getSeller() {
+    let seller: string;
+    try {
+      seller = await this.page.$eval(
+        ".soldbybox-header__title-text",
+        (el) => el.textContent || ""
+      );
+    } catch (error) {
+      throw new Error(`Could not get seller: ${error}`);
+    }
+    const match = seller.match(/^Sold by\s*(.+)/i);
+    if (match) {
+      return match[1].trim();
+    }
+    return seller;
+  }
 }
