@@ -5,6 +5,6 @@ export interface Characteristic {
   
   export interface StructuredCharacteristics {
     specifications: { [key: string]: string };
-    otherSpecifications: Characteristic[];
+    otherSpecifications: { [key: string]: string };
   }
   

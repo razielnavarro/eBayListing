@@ -216,14 +216,14 @@ export default class ebayScraper {
     };
     // Create two objects: one for known specifications and one for others
     const specifications: { [key: string]: string } = {};
-    const otherSpecifications: Characteristic[] = [];
+    const otherSpecifications: { [key: string]: string } = {};
 
     for (const char of characteristics) {
       if (char.label in knownLabels) {
         const key = knownLabels[char.label];
         specifications[key] = char.value;
       } else {
-        otherSpecifications.push(char);
+        otherSpecifications[char.label] = char.value;
       }
     }
     return { specifications, otherSpecifications };
