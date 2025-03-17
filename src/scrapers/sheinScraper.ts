@@ -179,8 +179,8 @@ export default class sheinScraper {
 
     return { mainImage, gallery };
   }
-  
-//   get sizes
+
+  //   get sizes
   async getSizes() {
     const sizes = await this.page.$$(
       ".sui-popover__trigger.product-intro__size-radio-spopover"
@@ -206,27 +206,46 @@ export default class sheinScraper {
     return { sizesContainer };
   }
 
-//   get colors
+  //   get colors
   async getColors() {
-    const colors = await this.page.$$(
+    const colorTriggers = await this.page.$$(
       "span.sui-popover__trigger[data-v-f25fb043]"
     );
 
-    if (colors.length === 0) {
+    if (colorTriggers.length === 0) {
       return "not available";
     }
 
-    const colorsContainer: string[] = [];
+    const colorsContainer = [];
 
-    for (const color of colors) {
+    for (const trigger of colorTriggers) {
       await this.delay(200);
 
-      const colorText = await color.$eval(
-        "div.goods-color__radio.goods-color__radio_block",
-        (el) => el.getAttribute("aria-label")
+      const radioElement = await trigger.$(
+        "div.goods-color__radio.goods-color__radio_block"
       );
+      if (!radioElement) {
+        continue;
+      }
+
+      const colorText = await radioElement.evaluate((el) =>
+        el.getAttribute("aria-label")
+      );
+
+      const imageElement = await radioElement.$(
+        "img.crop-image-container__img"
+      );
+      let imageUrl = "";
+      if (imageElement) {
+        imageUrl =
+          (await imageElement.evaluate((img) => img.getAttribute("src"))) || "";
+          if (imageUrl && imageUrl.startsWith("//")) {
+            imageUrl = "https:" + imageUrl;
+          }
+      }
+
       if (colorText) {
-        colorsContainer.push(colorText);
+        colorsContainer.push({ color: colorText, image: imageUrl });
       }
     }
     return { colorsContainer };
