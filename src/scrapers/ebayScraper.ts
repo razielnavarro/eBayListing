@@ -98,30 +98,47 @@ export default class ebayScraper {
     }
   }
 
-  // Choose USA as the
-  // country and enter the
-  // ZIP code 33172
+  // Choose USA as the country and enter the ZIP code 33172
   async selectCountry() {
-    // Enviar a
+    // Wait for and hover over the element that opens the country/ZIP modal
     await this.page.waitForSelector(
+      ".ux-layout-section__item .ux-action.fake-link.fake-link--action",
+      { visible: true }
+    );
+    await this.page.hover(
       ".ux-layout-section__item .ux-action.fake-link.fake-link--action"
     );
+    await this.delay(500);
     await this.page.click(
       ".ux-layout-section__item .ux-action.fake-link.fake-link--action"
     );
-    // Button with drop down
-    await this.page.waitForSelector("#shCountry");
+
+    // Wait for and click the country dropdown button
+    await this.page.waitForSelector("#shCountry", { visible: true });
+    await this.page.hover("#shCountry");
+    await this.delay(500);
     await this.page.click("#shCountry");
 
-    // Select USA
+    // Small delay before selecting the country
+    await this.delay(300);
+    // Select USA (assuming the value "1" corresponds to USA)
     await this.page.select("#shCountry", "1");
+    await this.delay(300);
 
-    // Select ZIP code
+    // Process the ZIP code input
     const zipInput = await this.page.$("#shZipCode");
     if (zipInput) {
+      await this.page.hover("#shZipCode");
+      await this.delay(300);
+      // Click to select existing content (triple click) and clear it
       await this.page.click("#shZipCode", { clickCount: 3 });
+      await this.delay(300);
       await this.page.keyboard.press("Backspace");
-      await this.page.type("#shZipCode", "33172");
+      await this.delay(300);
+      // Type the ZIP code with a delay between keystrokes
+      await this.page.type("#shZipCode", "33172", { delay: 150 });
+      await this.delay(500);
+      // Wait until the input value is updated
       await this.page.waitForFunction(() => {
         const input = document.querySelector("#shZipCode");
         return input && (input as HTMLInputElement).value === "33172";
@@ -130,34 +147,47 @@ export default class ebayScraper {
       console.log("ZIP code input not found. Continuing to next step.");
     }
 
-    // Submit button
+    // Wait for a moment before clicking the submit button
     await this.delay(300);
     await this.page.waitForSelector(
+      ".x-shipping-calculator__getRates button[type='submit'].btn--primary",
+      { visible: true }
+    );
+    await this.page.hover(
       ".x-shipping-calculator__getRates button[type='submit'].btn--primary"
     );
+    await this.delay(300);
     await this.page.click(
       ".x-shipping-calculator__getRates button[type='submit'].btn--primary"
     );
+    await this.delay(500);
+
+    // Wait for the response that confirms the changes have loaded
     await this.page.waitForResponse(
       (response) =>
         response.url().includes("GET_RATES_MODAL") && response.status() === 200,
       { timeout: 15000 }
-    ); // Wait for changes to load
+    );
 
-    // Close the modal
+    // Wait for the modal's close button, hover and click it
     await this.page.waitForSelector(
+      "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button",
+      { visible: true }
+    );
+    await this.page.hover(
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
+    await this.delay(300);
     await this.page.click(
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
 
+    // Wait for any navigation that might occur after closing the modal
     await this.page.waitForNavigation({
       waitUntil: "networkidle0",
     });
 
     await this.delay(500);
-
 
     await this.page.content();
   }
