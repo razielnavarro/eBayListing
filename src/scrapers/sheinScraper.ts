@@ -204,4 +204,29 @@ export default class sheinScraper {
     }
     return { sizesContainer };
   }
+
+  async getColors() {
+    const colors = await this.page.$$(
+      "span.sui-popover__trigger[data-v-f25fb043]"
+    );
+
+    if (colors.length === 0) {
+      return "not available";
+    }
+
+    const colorsContainer: string[] = [];
+
+    for (const color of colors) {
+      await this.delay(200);
+
+      const colorText = await color.$eval(
+        "div.goods-color__radio.goods-color__radio_block",
+        (el) => el.getAttribute("aria-label")
+      );
+      if (colorText) {
+        colorsContainer.push(colorText);
+      }
+    }
+    return { colorsContainer };
+  }
 }

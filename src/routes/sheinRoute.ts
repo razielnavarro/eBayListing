@@ -43,7 +43,8 @@ export async function sheinScraperHandler(url: string) {
   const categories = await scraper.getCategories();
   const images = await scraper.getImages();
   const sizes = await scraper.getSizes();
+  const colors = await scraper.getColors();
   await browser.close();
 
-  return { title, sku, price, categories, sizes, images };
+  return { title, sku, price, categories, sizes, colors, images };
 }
