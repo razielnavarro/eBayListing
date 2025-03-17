@@ -279,48 +279,58 @@ export default class amazonScraper {
 
   async getBrand() {
     try {
-      // Wait for the parent container to ensure the table is loaded
-      await this.page.waitForSelector("#productDetails_feature_div", {
-        timeout: 5000,
-      });
-
-      // Evaluate the page to locate the manufacturer row and extract its value
+      await this.page.waitForSelector(
+        "#productDetails_feature_div, #detailBulletsWrapper_feature_div",
+        { timeout: 5000 }
+      );
+  
       let brand = await this.page.evaluate(() => {
-        const container = document.querySelector("#productDetails_feature_div");
-        if (!container) return null;
-
-        // Look through each table row
-        // Query all tables inside this container
-        const tables = container.querySelectorAll("table");
-        for (const table of tables) {
-          const rows = table.querySelectorAll("tr");
-          for (const row of rows) {
-            const th = row.querySelector("th");
-            const td = row.querySelector("td");
-            if (
-              th &&
-              td &&
-              th.innerText.trim().toLowerCase() === "manufacturer"
-            ) {
-              return td.innerText.trim();
+        let container = document.querySelector("#productDetails_feature_div");
+        if (container) {
+          const tables = container.querySelectorAll("table");
+          for (const table of tables) {
+            const rows = table.querySelectorAll("tr");
+            for (const row of rows) {
+              const th = row.querySelector("th");
+              const td = row.querySelector("td");
+              if (
+                th &&
+                td &&
+                th.innerText.trim().toLowerCase() === "manufacturer"
+              ) {
+                return td.innerText.trim();
+              }
+            }
+          }
+        } else {
+          container = document.querySelector("#detailBulletsWrapper_feature_div");
+          if (!container) return null;
+  
+          const bulletLis = container.querySelectorAll("li");
+          for (const li of bulletLis) {
+            const boldSpan = li.querySelector("span.a-text-bold");
+            if (boldSpan && boldSpan.textContent && boldSpan.textContent.toLowerCase().includes("manufacturer")) {
+              const spans = li.querySelectorAll("span");
+              if (spans.length > 1) {
+                return spans[2]?.textContent?.trim() || "";
+              }
             }
           }
         }
-        return null;
+        return null; // if nothing found
       });
-
+  
       if (brand) {
-        brand = brand
-          .replace(/\u200E/g, "")
-          .replace(/\u200F/g, "")
-          .trim();
+        brand = brand.replace(/\u200E/g, "").replace(/\u200F/g, "").trim();
       }
+  
       return brand;
     } catch (error) {
       console.error("Brand element not found:", error);
       return null;
     }
   }
+  
 
   async getCategories() {
     await this.page.waitForSelector("#wayfinding-breadcrumbs_feature_div > ul");
