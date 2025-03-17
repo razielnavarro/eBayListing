@@ -179,7 +179,8 @@ export default class sheinScraper {
 
     return { mainImage, gallery };
   }
-
+  
+//   get sizes
   async getSizes() {
     const sizes = await this.page.$$(
       ".sui-popover__trigger.product-intro__size-radio-spopover"
@@ -205,6 +206,7 @@ export default class sheinScraper {
     return { sizesContainer };
   }
 
+//   get colors
   async getColors() {
     const colors = await this.page.$$(
       "span.sui-popover__trigger[data-v-f25fb043]"
