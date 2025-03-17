@@ -77,15 +77,22 @@ export default class ebayScraper {
 
   async getShipping(): Promise<number | string> {
     try {
+      await this.page.waitForSelector(
+        "div.ux-layout-section--shipping div.ux-labels-values--shipping span.ux-textspans.ux-textspans--BOLD"
+      );
       let shippingCost = await this.page.$eval(
         "div.ux-layout-section--shipping div.ux-labels-values--shipping span.ux-textspans.ux-textspans--BOLD",
         (el) => el.textContent?.trim() || ""
       );
+
+      if (shippingCost.trim().toLowerCase() === "gratis") {
+        return shippingCost;
+      }
       // if shipping shows in a different currency, show amount in USD
       if (!shippingCost.includes("$")) {
         shippingCost = await this.page.$eval(
           "div.ux-layout-section--shipping div.ux-labels-values--shipping span.ux-textspans.ux-textspans--SECONDARY.ux-textspans--BOLD",
-          (el) => el.innerHTML
+          (el) => el.textContent?.trim() || ""
         );
       }
       const parsedShippingCost = this.parseDollarValue(shippingCost);
@@ -177,7 +184,7 @@ export default class ebayScraper {
     await this.page.hover(
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
-    await this.delay(300);
+    await this.delay(500);
     await this.page.click(
       "body > div.vi-evo > main > div.main-container > div.vim.x-vi-evo-main-container.template-evo-avip > div.x-evo-overlay-river > div > div > div > div > div.lightbox-dialog__window.lightbox-dialog__window--animate.keyboard-trap--active > div.lightbox-dialog__header > button"
     );
@@ -187,9 +194,8 @@ export default class ebayScraper {
       waitUntil: "networkidle0",
     });
 
-    await this.delay(500);
+    await this.delay(800);
 
-    await this.page.content();
   }
 
   // Select spanish as the
