@@ -1,6 +1,10 @@
 import puppeteerExtra from "puppeteer-extra";
 import stealth from "puppeteer-extra-plugin-stealth";
 import * as puppeteer from "puppeteer";
+import type {
+  Characteristic,
+  StructuredCharacteristics,
+} from "../common/types";
 
 puppeteerExtra.use(stealth());
 
@@ -288,5 +292,24 @@ export default class sheinScraper {
       10
     );
     return { rating, totalReviews };
+  }
+  
+  //   get item details
+  async getCharacteristics(): Promise<{ [key: string]: string }> {
+    const rows = await this.page.$$(".product-intro__description-table-item");
+    const characteristics: { [key: string]: string } = {};
+
+    for (const row of rows) {
+      const labelEl = await row.$(".key");
+      const valueEl = await row.$(".val");
+      if (labelEl && valueEl) {
+        let label = await row.$eval(".key", (el) => el.textContent?.trim());
+        const value = await row.$eval(".val", (el) => el.textContent?.trim());
+        if (label && value) {
+          characteristics[label] = value;
+        }
+      }
+    }
+    return characteristics;
   }
 }
