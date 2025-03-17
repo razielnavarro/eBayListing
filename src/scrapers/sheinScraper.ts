@@ -2,7 +2,7 @@ import puppeteerExtra from "puppeteer-extra";
 import stealth from "puppeteer-extra-plugin-stealth";
 import * as puppeteer from "puppeteer";
 
-// puppeteerExtra.use(stealth());
+puppeteerExtra.use(stealth());
 
 export default class sheinScraper {
   private browser: puppeteer.Browser;
@@ -178,5 +178,30 @@ export default class sheinScraper {
     const [mainImage, ...gallery] = uniqueImages;
 
     return { mainImage, gallery };
+  }
+
+  async getSizes() {
+    const sizes = await this.page.$$(
+      ".sui-popover__trigger.product-intro__size-radio-spopover"
+    );
+
+    if (sizes.length === 0) {
+      return "not available";
+    }
+
+    const sizesContainer: string[] = [];
+
+    for (const size of sizes) {
+      await this.delay(200);
+
+      const sizeText = await size.$eval(
+        "div.product-intro__size-radio.fsp-element",
+        (el) => el.getAttribute("aria-label")
+      );
+      if (sizeText) {
+        sizesContainer.push(sizeText);
+      }
+    }
+    return { sizesContainer };
   }
 }
