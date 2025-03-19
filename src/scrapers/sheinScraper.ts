@@ -219,68 +219,68 @@ export default class sheinScraper {
 
   //   get colors
   async getColors() {
-      // Grab all color elements in the DOM
-      const colorIdentifiers = await this.page.$$(
-        "span.sui-popover__trigger[data-v-f25fb043]"
-      );
-  
-      if (colorIdentifiers.length === 0) {
-        return "not available";
-      }
-  
-      // container for temporary data used for matching
-      const colorsContainer = [];
-  
-      for (const colorEl of colorIdentifiers) {
-        await this.delay(200);
-  
-        const goodsId = await colorEl.evaluate((el) =>
-          el.getAttribute("goods-id")
-        );
-  
-        const labelEl = await colorEl.$(
-          "div.goods-color__radio.goods-color__radio_block, div.goods-color__radio.goods-color__radio_radio"
-        );
-        if (!labelEl) continue;
-  
-        const colorText = await labelEl.evaluate((el) =>
-          el.getAttribute("aria-label")
-        );
-  
-        colorsContainer.push({ goodsId, colorText, sku: null, image: null });
-      }
-  
-      const gbRawData = await this.page.evaluate(() => window.gbRawData);
-  
-      const relationColors = gbRawData?.productIntroData?.relation_color || [];
-  
-      // For each color item in colorsContainer, find the matching entry
-      //    in relationColors by comparing goods_id
-      for (const colorItem of colorsContainer) {
-        const matchingColorObj = relationColors.find(
-          (relColor: { goods_id: string | number }) =>
-            String(relColor.goods_id) === String(colorItem.goodsId)
-        );
-  
-        if (matchingColorObj) {
-          colorItem.sku = matchingColorObj.goods_sn;
-          // Ensure the image URL uses https
-          let imageUrl = matchingColorObj.original_img || "";
-          if (imageUrl.startsWith("//")) {
-            imageUrl = "https:" + imageUrl;
-          }
-          colorItem.image = imageUrl;
-        }
-      }
-  
-      const finalColors = colorsContainer.map(({ colorText, sku, image }) => ({
-        colorText,
-        sku,
-        image,
-      }));
-  
-      return finalColors;
+    // Grab all color elements in the DOM
+    const colorIdentifiers = await this.page.$$(
+      "span.sui-popover__trigger[data-v-f25fb043]"
+    );
+
+    if (colorIdentifiers.length === 0) {
+      return "not available";
     }
+
+    // container for temporary data used for matching
+    const colorsContainer = [];
+
+    for (const colorEl of colorIdentifiers) {
+      await this.delay(200);
+
+      const goodsId = await colorEl.evaluate((el) =>
+        el.getAttribute("goods-id")
+      );
+
+      const labelEl = await colorEl.$(
+        "div.goods-color__radio.goods-color__radio_block, div.goods-color__radio.goods-color__radio_radio"
+      );
+      if (!labelEl) continue;
+
+      const colorText = await labelEl.evaluate((el) =>
+        el.getAttribute("aria-label")
+      );
+
+      colorsContainer.push({ goodsId, colorText, sku: null, image: null });
+    }
+
+    const gbRawData = await this.page.evaluate(() => window.gbRawData);
+
+    const relationColors = gbRawData?.productIntroData?.relation_color || [];
+
+    // For each color item in colorsContainer, find the matching entry
+    //    in relationColors by comparing goods_id
+    for (const colorItem of colorsContainer) {
+      const matchingColorObj = relationColors.find(
+        (relColor: { goods_id: string | number }) =>
+          String(relColor.goods_id) === String(colorItem.goodsId)
+      );
+
+      if (matchingColorObj) {
+        colorItem.sku = matchingColorObj.goods_sn;
+        // Ensure the image URL uses https
+        let imageUrl = matchingColorObj.original_img || "";
+        if (imageUrl.startsWith("//")) {
+          imageUrl = "https:" + imageUrl;
+        }
+        colorItem.image = imageUrl;
+      }
+    }
+
+    const finalColors = colorsContainer.map(({ colorText, sku, image }) => ({
+      colorText,
+      sku,
+      image,
+    }));
+
+    return finalColors.slice(1);
+  }
 
   async getSeller() {
     let seller: string;
