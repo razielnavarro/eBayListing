@@ -98,7 +98,6 @@ export default class sheinScraper {
 
   // Get the listing's
   // price
-
   async getPrice() {
     let price: string;
     try {
@@ -219,7 +218,6 @@ export default class sheinScraper {
 
   //   get colors
   async getColors() {
-    // Grab all color elements in the DOM
     const colorIdentifiers = await this.page.$$(
       "span.sui-popover__trigger[data-v-f25fb043]"
     );
@@ -228,7 +226,6 @@ export default class sheinScraper {
       return "not available";
     }
 
-    // container for temporary data used for matching
     const colorsContainer = [];
 
     for (const colorEl of colorIdentifiers) {
@@ -254,8 +251,6 @@ export default class sheinScraper {
 
     const relationColors = gbRawData?.productIntroData?.relation_color || [];
 
-    // For each color item in colorsContainer, find the matching entry
-    //    in relationColors by comparing goods_id
     for (const colorItem of colorsContainer) {
       const matchingColorObj = relationColors.find(
         (relColor: { goods_id: string | number }) =>
@@ -264,7 +259,7 @@ export default class sheinScraper {
 
       if (matchingColorObj) {
         colorItem.sku = matchingColorObj.goods_sn;
-        // Ensure the image URL uses https
+
         let imageUrl = matchingColorObj.original_img || "";
         if (imageUrl.startsWith("//")) {
           imageUrl = "https:" + imageUrl;
@@ -282,6 +277,7 @@ export default class sheinScraper {
     return finalColors.slice(1);
   }
 
+  // Get the seller's info
   async getSeller() {
     let seller: string;
     try {
@@ -299,6 +295,7 @@ export default class sheinScraper {
     return seller;
   }
 
+  // Get reviews info
   async getReviews() {
     const ratingText = await this.page.$eval(
       ".rate-num-small",
