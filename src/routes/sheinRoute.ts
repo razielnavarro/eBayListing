@@ -11,10 +11,13 @@ export const shein = new Hono();
 export async function sheinScraperHandler(url: string) {
   const browser = await puppeteer.launch({
     headless: false,
-    args: ["--disable-blink-features=AutomationControlled"],
+    args: ["--disable-blink-features=AutomationControlled"]
   });
   const page = await browser.newPage();
 
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'es-ES,es;q=0.9'
+  });
   // Override navigator.webdriver before any script runs
   await page.evaluateOnNewDocument(() => {
     Object.defineProperty(navigator, "webdriver", {
