@@ -1,10 +1,10 @@
-export interface Characteristic {
+export interface Spec {
     label: string;
     value: string;
   }
   
-  export interface StructuredCharacteristics {
-    specifications: { [key: string]: string };
-    otherSpecifications: { [key: string]: string };
+  export interface StructuredSpecs {
+    features: { [key: string]: string };
+    otherFeatures: { [key: string]: string };
   }
   

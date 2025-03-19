@@ -49,7 +49,7 @@ export async function sheinScraperHandler(url: string) {
   const colors = await scraper.getColors();
   const seller = await scraper.getSeller();
   const reviews = await scraper.getReviews();
-  const characteristics = await scraper.getCharacteristics();
+  const features = await scraper.getFeatures();
 
   await browser.close();
 
@@ -62,7 +62,7 @@ export async function sheinScraperHandler(url: string) {
     categories,
     sizes,
     colors,
-    characteristics,
+    features,
     images,
   };
 }

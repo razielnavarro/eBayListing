@@ -1,8 +1,8 @@
 import { error } from "console";
 import * as puppeteer from "puppeteer";
 import type {
-  Characteristic,
-  StructuredCharacteristics,
+  Spec,
+  StructuredSpecs,
 } from "../common/types";
 
 export default class ebayScraper {
@@ -221,9 +221,9 @@ export default class ebayScraper {
   // Get listing's
   // details
 
-  async getCharacteristics(): Promise<StructuredCharacteristics> {
+  async getSpecs(): Promise<StructuredSpecs> {
     const rows = await this.page.$$(".ux-layout-section-evo__col");
-    const characteristics: Characteristic[] = [];
+    const specs: Spec[] = [];
     for (const row of rows) {
       const labelEl = await row.$(".ux-labels-values__labels-content");
       const valueEl = await row.$(".ux-labels-values__values-content");
@@ -238,7 +238,7 @@ export default class ebayScraper {
         );
         // Only push if both label and value are non-empty.
         if (label && value) {
-          characteristics.push({ label, value });
+          specs.push({ label, value });
         }
       }
     }
@@ -251,18 +251,18 @@ export default class ebayScraper {
       Características: "Características",
     };
     // Create two objects: one for known specifications and one for others
-    const specifications: { [key: string]: string } = {};
-    const otherSpecifications: { [key: string]: string } = {};
+    const features: { [key: string]: string } = {};
+    const otherFeatures: { [key: string]: string } = {};
 
-    for (const char of characteristics) {
-      if (char.label in knownLabels) {
-        const key = knownLabels[char.label];
-        specifications[key] = char.value;
+    for (const spec of specs) {
+      if (spec.label in knownLabels) {
+        const key = knownLabels[spec.label];
+        features[key] = spec.value;
       } else {
-        otherSpecifications[char.label] = char.value;
+        otherFeatures[spec.label] = spec.value;
       }
     }
-    return { specifications, otherSpecifications };
+    return { features, otherFeatures };
   }
 
   // Get listing's

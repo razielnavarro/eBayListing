@@ -18,9 +18,9 @@ export async function ebayScraperHandler(url: string){
   const images = await scraper.getImages();
   const price = await scraper.getPrice();
   const shipping = await scraper.getShipping();
-  const specifications = await scraper.getCharacteristics();
+  const features = await scraper.getSpecs();
 
   await browser.close();
 
-  return { title, price, shipping, specifications, images };
+  return { title, price, shipping, features, images };
 };

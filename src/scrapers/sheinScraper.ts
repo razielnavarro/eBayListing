@@ -8,10 +8,6 @@ declare global {
 }
 import stealth from "puppeteer-extra-plugin-stealth";
 import * as puppeteer from "puppeteer";
-import type {
-  Characteristic,
-  StructuredCharacteristics,
-} from "../common/types";
 
 puppeteerExtra.use(stealth());
 
@@ -319,9 +315,9 @@ export default class sheinScraper {
   }
 
   //   get item details
-  async getCharacteristics(): Promise<{ [key: string]: string }> {
+  async getFeatures(): Promise<{ [key: string]: string }> {
     const rows = await this.page.$$(".product-intro__description-table-item");
-    const characteristics: { [key: string]: string } = {};
+    const features: { [key: string]: string } = {};
 
     for (const row of rows) {
       const labelEl = await row.$(".key");
@@ -330,10 +326,10 @@ export default class sheinScraper {
         let label = await row.$eval(".key", (el) => el.textContent?.trim());
         const value = await row.$eval(".val", (el) => el.textContent?.trim());
         if (label && value) {
-          characteristics[label] = value;
+          features[label] = value;
         }
       }
     }
-    return characteristics;
+    return features;
   }
 }
