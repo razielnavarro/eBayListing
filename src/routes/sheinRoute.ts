@@ -22,11 +22,11 @@ export async function sheinScraperHandler(url: string) {
     });
   });
 
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-    });
+  await page.setViewport({
+    width: 1920,
+    height: 1080,
+    deviceScaleFactor: 1,
+  });
 
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
@@ -50,5 +50,16 @@ export async function sheinScraperHandler(url: string) {
 
   await browser.close();
 
-  return { title, sku, price, seller, reviews, categories, sizes, colors, characteristics,images };
+  return {
+    title,
+    sku,
+    price,
+    seller,
+    reviews,
+    categories,
+    sizes,
+    colors,
+    characteristics,
+    images,
+  };
 }

@@ -1,4 +1,11 @@
 import puppeteerExtra from "puppeteer-extra";
+
+// Extend the Window interface to include gbRawData
+declare global {
+  interface Window {
+    gbRawData: any;
+  }
+}
 import stealth from "puppeteer-extra-plugin-stealth";
 import * as puppeteer from "puppeteer";
 import type {
@@ -212,51 +219,68 @@ export default class sheinScraper {
 
   //   get colors
   async getColors() {
-    const colorTriggers = await this.page.$$(
-      "span.sui-popover__trigger[data-v-f25fb043]"
-    );
-
-    if (colorTriggers.length === 0) {
-      return "not available";
-    }
-
-    const colorsContainer = [];
-
-    for (const trigger of colorTriggers) {
-      await this.delay(200);
-
-      const radioElement = await trigger.$(
-        "div.goods-color__radio.goods-color__radio_block, div.goods-color__radio.goods-color__radio_radio"
+      // Grab all color elements in the DOM
+      const colorIdentifiers = await this.page.$$(
+        "span.sui-popover__trigger[data-v-f25fb043]"
       );
-      if (!radioElement) {
-        continue;
+  
+      if (colorIdentifiers.length === 0) {
+        return "not available";
       }
-
-      const colorText = await radioElement.evaluate((el) =>
-        el.getAttribute("aria-label")
-      );
-
-      let imageElement = await radioElement.$(
-        "img.crop-image-container__img"
-      );
-      if(!imageElement) {
-        imageElement = await radioElement.$(".radio-inner img");
+  
+      // container for temporary data used for matching
+      const colorsContainer = [];
+  
+      for (const colorEl of colorIdentifiers) {
+        await this.delay(200);
+  
+        const goodsId = await colorEl.evaluate((el) =>
+          el.getAttribute("goods-id")
+        );
+  
+        const labelEl = await colorEl.$(
+          "div.goods-color__radio.goods-color__radio_block, div.goods-color__radio.goods-color__radio_radio"
+        );
+        if (!labelEl) continue;
+  
+        const colorText = await labelEl.evaluate((el) =>
+          el.getAttribute("aria-label")
+        );
+  
+        colorsContainer.push({ goodsId, colorText, sku: null, image: null });
       }
-      let imageUrl = "";
-      if (imageElement) {
-        imageUrl =
-          (await imageElement.evaluate((img) => img.getAttribute("src"))) || "";
-        if (imageUrl && imageUrl.startsWith("//")) {
-          imageUrl = "https:" + imageUrl;
+  
+      const gbRawData = await this.page.evaluate(() => window.gbRawData);
+  
+      const relationColors = gbRawData?.productIntroData?.relation_color || [];
+  
+      // For each color item in colorsContainer, find the matching entry
+      //    in relationColors by comparing goods_id
+      for (const colorItem of colorsContainer) {
+        const matchingColorObj = relationColors.find(
+          (relColor: { goods_id: string | number }) =>
+            String(relColor.goods_id) === String(colorItem.goodsId)
+        );
+  
+        if (matchingColorObj) {
+          colorItem.sku = matchingColorObj.goods_sn;
+          // Ensure the image URL uses https
+          let imageUrl = matchingColorObj.original_img || "";
+          if (imageUrl.startsWith("//")) {
+            imageUrl = "https:" + imageUrl;
+          }
+          colorItem.image = imageUrl;
         }
       }
-
-      if (colorText) {
-        colorsContainer.push({ color: colorText, image: imageUrl });
-      }
+  
+      const finalColors = colorsContainer.map(({ colorText, sku, image }) => ({
+        colorText,
+        sku,
+        image,
+      }));
+  
+      return finalColors;
     }
-    return { colorsContainer };
-  }
 
   async getSeller() {
     let seller: string;
@@ -296,7 +320,7 @@ export default class sheinScraper {
     );
     return { rating, totalReviews };
   }
-  
+
   //   get item details
   async getCharacteristics(): Promise<{ [key: string]: string }> {
     const rows = await this.page.$$(".product-intro__description-table-item");
