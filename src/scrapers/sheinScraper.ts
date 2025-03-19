@@ -156,35 +156,39 @@ export default class sheinScraper {
   // Get listing's
   // images
   async getImages() {
+    // Select the full-size image containers from the main gallery
     const items = await this.page.$$(
-      ".product-intro__thumbs-item .crop-image-container"
+      ".product-intro__main-item .crop-image-container"
     );
     const imageURLs: string[] = [];
-
+  
     for (const item of items) {
-      // optional delay if needed
+      // Optional delay if needed
       await this.delay(200);
-
-      // Grab the data-before-crop-src
-      const imageURL = await item.$eval(
-        ".crop-image-container img",
-        (img) => (img as HTMLImageElement).src
-      );
-
-      // Push into our array
-      if (imageURL) {
-        imageURLs.push(imageURL);
+  
+      // Extract the full-size URL from the data-before-crop-src attribute
+      const imageURL = await item.evaluate(el => el.getAttribute("data-before-crop-src"));
+      
+      // Prepend "https:" if the URL starts with "//"
+      const finalURL = imageURL && imageURL.startsWith("//")
+        ? `https:${imageURL}`
+        : imageURL;
+      
+      if (finalURL) {
+        imageURLs.push(finalURL);
       }
     }
-
-    // Now remove duplicates
+  
+    // Remove duplicates
     const uniqueImages = Array.from(new Set(imageURLs));
-
+  
     // Typically the first image is the "main" one
     const [mainImage, ...gallery] = uniqueImages;
-
+  
     return { mainImage, gallery };
   }
+  
+  
 
   //   get sizes
   async getSizes() {
@@ -341,3 +345,4 @@ export default class sheinScraper {
     return features;
   }
 }
+
