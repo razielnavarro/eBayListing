@@ -191,26 +191,34 @@ export default class sheinScraper {
     const sizes = await this.page.$$(
       ".sui-popover__trigger.product-intro__size-radio-spopover"
     );
-
+  
     if (sizes.length === 0) {
       return "not available";
     }
-
-    const sizesContainer: string[] = [];
-
+  
+    const sizesContainer = [];
+  
     for (const size of sizes) {
       await this.delay(200);
-
-      const sizeText = await size.$eval(
+  
+      const sizeData = await size.$eval(
         "div.product-intro__size-radio.fsp-element",
-        (el) => el.getAttribute("aria-label")
+        (el) => {
+          // Get the size label
+          const label = el.getAttribute("aria-label");
+          // Check if the sold-out class is present
+          const soldOut = el.classList.contains("product-intro__size-radio_soldout");
+          return { label, soldOut };
+        }
       );
-      if (sizeText) {
-        sizesContainer.push(sizeText);
+  
+      if (sizeData.label) {
+        sizesContainer.push(sizeData);
       }
     }
     return { sizesContainer };
   }
+  
 
   //   get colors
   async getColors() {
